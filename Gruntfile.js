@@ -38,14 +38,21 @@ module.exports = function (grunt) {
             }
         },
         jscs: {
-            all: {
-                options: {
-                    config: ".jscsrc"
-                },
+            options: {
+                config: ".jscsrc"
+            },
+            src: {
                 files: {
                     src: [
                         "Gruntfile.js",
                         "./<%= config.src %>/**/*.js"
+                    ]
+                }
+            },
+            test: {
+                files: {
+                    src: [
+                        "./<%= config.test %>/**/*.js"
                     ]
                 }
             }
@@ -70,30 +77,46 @@ module.exports = function (grunt) {
                 strict: true,
                 trailing: true,
                 undef: true,
-                unused: false,
-                ignores: [
-                    "./<%= config.build %>/**",
-                    "./node_modules/**",
-                    "./<%= config.test %>/**"
-                ]
+                unused: false
             },
-            all: {
-                options: {
-                    es3: true,
-                    esnext: false,
-                    globals: {
-                        define: true,
-                        navigator: true,
-                        require: true,
-                        window: true
-                    }
-                },
+            src: {
                 files: {
                     src: [
                         "Gruntfile.js",
                         "./<%= config.src %>/**/*.js"
                     ]
                 }
+            },
+            test: {
+                options: {
+                    globals: {
+                        describe: true,
+                        it: true
+                    }
+                },
+                files: {
+                    src: [
+                        "./<%= config.test %>/**/*.js"
+                    ]
+                }
+            }
+        },
+        "mocha_istanbul": {
+            checkCoverage: {
+                options: {
+                    check: {
+                        branches: 100,
+                        functions: 100,
+                        lines: 100,
+                        statements: 100
+                    },
+                    coverage: true,
+                    reportFormats: [
+                        "html"
+                    ],
+                    root: "./<%= config.src %>"
+                },
+                src: "./<%= config.test %>"
             }
         },
         mochaTest: {
@@ -108,10 +131,20 @@ module.exports = function (grunt) {
         }
     });
 
+    grunt.event.on("coverage", function (lcov, done) {
+        console.log(lcov);
+        done(); // or done(false); in case of error
+    });
+
     grunt.registerTask("build", "Build the package", [
         "clean:all",
         "test",
         "dist"
+    ]);
+
+    grunt.registerTask("ci", "Runs the continuous integration tests", [
+        "test",
+        "mocha_istanbul:checkCoverage"
     ]);
 
     grunt.registerTask("default", [
@@ -123,8 +156,10 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask("lint", "Run the lint tests", [
-        "jshint:all",
-        "jscs:all"
+        "jshint:src",
+        "jshint:test",
+        "jscs:src",
+        "jscs:test"
     ]);
 
     grunt.registerTask("test", "Perform tests on the codebase", [
