@@ -1,0 +1,29 @@
+{
+  "name": "restify-example",
+  "version": "0.0.0",
+  "description": "An example application using Restify",
+  "main": "./src/Main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/riggerthegeek/restify-example.git"
+  },
+  "author": "Simon Emms <simon@simonemms.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/riggerthegeek/restify-example/issues"
+  },
+  "homepage": "https://github.com/riggerthegeek/restify-example",
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-clean": "~0.6.0",
+    "grunt-contrib-copy": "~0.5.0",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-jscs": "~0.6.2",
+    "grunt-mocha-test": "~0.11.0",
+    "load-grunt-tasks": "~0.6.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  }
+}
