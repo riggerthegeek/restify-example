@@ -11,9 +11,7 @@
 
 
 /* Third-party modules */
-var _ = require("lodash");
-var promise = require("bluebird");
-var restify = require("restify");
+var bunyan = require("bunyan");
 var steeplejack = require("steeplejack");
 
 var Base = steeplejack.Base;
@@ -21,6 +19,7 @@ var Base = steeplejack.Base;
 
 /* Files */
 var Routes = require("./service/routes");
+var Server = require("./service/library/Server");
 
 
 module.exports = Base.extend({
@@ -33,6 +32,9 @@ module.exports = Base.extend({
 
         /* Create the injector */
         this._createInjector();
+
+        /* Create logger */
+        this._createLogger();
 
         /* Add routes */
         this._addRoutes();
@@ -59,6 +61,15 @@ module.exports = Base.extend({
     },
 
 
+    _createLogger: function () {
+        this._logger = bunyan.createLogger({
+            name: this._config.server.name
+        });
+
+        this._logger.level(this._config.logLevel);
+    },
+
+
     /**
      * Create Injector
      *
@@ -82,29 +93,25 @@ module.exports = Base.extend({
      */
     _createServer: function () {
 
-        var self = this;
+        var config = this._config;
 
-        /* Create the server instance */
-        var server = restify.createServer({
-
+        var server = new Server({
+            logger: this._logger,
+            name: config.server.name,
+            port: config.server.port
         });
-
-        /* Promisify */
-        server = promise.promisifyAll(server);
 
         /* Add in the routes to the server */
-        _.each(self._routes, function (methods, route) {
-            _.each(methods, function (func, method) {
-                server[method](route, func);
-            });
-        });
+        server.addRoutes(this._routes);
 
-        /* Start listening */
-        server.listenAsync(self._config.port)
+        /* Start the server */
+        server.start()
             .then(function () {
-                console.log(JSON.stringify(self._config, null, 4));
+                console.log("=== CONFIG ===");
+                console.log(JSON.stringify(config, null, 2));
             })
             .catch(function (err) {
+                /* Throw the error so it fails to start */
                 throw err;
             });
 

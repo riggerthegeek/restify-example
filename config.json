@@ -1,4 +1,7 @@
 {
   "logLevel": "ERROR",
-  "port": 3000
+  "server": {
+    "name": "restify-example",
+    "port": 3000
+  }
 }

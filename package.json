@@ -15,6 +15,7 @@
   "homepage": "https://github.com/riggerthegeek/restify-example",
   "dependencies": {
     "bluebird": "~2.2.2",
+    "bunyan": "~1.0.0",
     "lodash": "~2.4.1",
     "restify": "~2.8.2"
   },
@@ -24,7 +25,7 @@
     "grunt-contrib-clean": "~0.6.0",
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-jscs": "~0.6.2",
-    "grunt-jsonlint": "^1.0.4",
+    "grunt-jsonlint": "~1.0.4",
     "grunt-mocha-istanbul": "~2.0.0",
     "grunt-mocha-test": "~0.11.0",
     "grunt-timer": "~0.5.6",
