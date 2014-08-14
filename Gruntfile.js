@@ -86,19 +86,6 @@ module.exports = function (grunt) {
                         "./<%= config.src %>/**/*.js"
                     ]
                 }
-            },
-            test: {
-                options: {
-                    globals: {
-                        describe: true,
-                        it: true
-                    }
-                },
-                files: {
-                    src: [
-                        "./<%= config.test %>/**/*.js"
-                    ]
-                }
             }
         },
         "mocha_istanbul": {
@@ -132,11 +119,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.event.on("coverage", function (lcov, done) {
-        console.log(lcov);
-        done(); // or done(false); in case of error
-    });
-
     grunt.registerTask("build", "Build the package", [
         "clean:all",
         "test",
@@ -158,9 +140,8 @@ module.exports = function (grunt) {
 
     grunt.registerTask("lint", "Run the lint tests", [
         "jshint:src",
-        "jshint:test",
         "jscs:src",
-        "jscs:test"
+        "jscs:test" /* Run JSCS on tests to ensure readability */
     ]);
 
     grunt.registerTask("test", "Perform tests on the codebase", [
