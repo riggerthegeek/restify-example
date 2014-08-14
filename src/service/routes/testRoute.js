@@ -22,13 +22,15 @@ module.exports = function (container) {
 
         example: {
 
-            get: function (req, res, cb) {
-                res.send(200, {
-                    fart: 2
-                });
+            get: [
+                function (req, res, cb) {
+                    res.send(200, {
+                        fart: 2
+                    });
 
-                cb();
-            }
+                    cb();
+                }
+            ]
 
         }
 
