@@ -88,6 +88,15 @@ module.exports = function (grunt) {
                 }
             }
         },
+        jsonlint: {
+            src: {
+                src: [
+                    "./*.json",
+                    "./<%= config.src %>/**/*.json",
+                    "./<%= config.test %>/**/*.json"
+                ]
+            }
+        },
         "mocha_istanbul": {
             checkCoverage: {
                 options: {
@@ -140,6 +149,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask("lint", "Run the lint tests", [
         "jshint:src",
+        "jsonlint:src",
         "jscs:src",
         "jscs:test" /* Run JSCS on tests to ensure readability */
     ]);
