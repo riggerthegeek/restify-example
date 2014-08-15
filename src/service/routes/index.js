@@ -23,9 +23,10 @@ var Base = steeplejack.Base;
 module.exports = Base.extend({
 
 
-    _construct: function (container) {
+    _construct: function (container, outputHandler) {
 
         this._container = container;
+        this._outputHandler = outputHandler;
 
         /* Create the router object with the top level routes */
         this._routes = new steeplejack.Router({
@@ -47,7 +48,9 @@ module.exports = Base.extend({
      * @private
      */
     _addRoute: function (route) {
-        return require("./" + route)(this._container);
+        var fn = require("./" + route);
+
+        return fn(this._container, this._outputHandler);
     },
 
 

@@ -14,21 +14,42 @@
 /* Files */
 
 
-module.exports = function (container) {
+module.exports = function (container, outputHandler) {
 
-//    var messageEndpoint = container.process(require("../endpoints/MessageEndpoint"));
+    var testEndpoint = container.process(require("../endpoints/TestEndpoint"));
 
     return {
+
+        "/": {
+
+            get: [
+                function (req, res, cb) {
+
+                    var err;
+                    var data = {
+                        fart: 3
+                    };
+
+                    outputHandler(err, data, req, res, cb);
+
+                }
+            ]
+
+        },
 
         example: {
 
             get: [
                 function (req, res, cb) {
-                    res.send(200, {
-                        fart: 2
-                    });
 
-                    cb();
+                    var err;
+                    var data = {
+                        fart: 2,
+                        query: req.query
+                    };
+
+                    outputHandler(err, data, req, res, cb);
+
                 }
             ]
 

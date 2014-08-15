@@ -19,6 +19,7 @@ var steeplejack = require("steeplejack");
 var Base = steeplejack.Base;
 var datatypes = Base.datatypes;
 
+
 /* Files */
 
 
@@ -35,16 +36,18 @@ module.exports = Base.extend({
      */
     _construct: function (options) {
 
+        var self = this;
+
         options = datatypes.setObject(options, {});
 
-        this.port = datatypes.setInt(options.port, null);
+        self.port = datatypes.setInt(options.port, null);
 
-        if (this.port === null) {
+        if (self.port === null) {
             throw new Error("server port must be set as an integer");
         }
 
         /* Create a promisified instance of the server */
-        this._server = bluebird.promisifyAll(restify.createServer({
+        self._server = bluebird.promisifyAll(restify.createServer({
             certificate: options.certificate,
             formatters: options.formatters,
             handleUpgrades: options.handleUpgrades,
@@ -55,6 +58,24 @@ module.exports = Base.extend({
             version: options.version
         }));
 
+    },
+
+
+    /**
+     * Accept Parser
+     *
+     * Makes the server use the accept parse.  If
+     * options are not an array, uses the default
+     * restify options.  Returns this to make the
+     * method cainable.
+     *
+     * @param options
+     * @returns {exports}
+     */
+    acceptParser: function (options) {
+        options = datatypes.setArray(options, this._server.acceptable);
+
+        return this.use(restify.acceptParser(options));
     },
 
 
@@ -84,6 +105,112 @@ module.exports = Base.extend({
 
 
     /**
+     * After
+     *
+     * Set up a listener for the after event
+     *
+     * @param fn
+     * @returns {exports}
+     */
+    after: function (fn) {
+        this._server.on("after", fn);
+        return this;
+    },
+
+
+    /**
+     * Body Parser
+     *
+     * Allows the server to receive the HTTP body. Returns
+     * this to make it chainable.
+     *
+     * @returns {exports}
+     */
+    bodyParser: function () {
+        return this.use(restify.bodyParser());
+    },
+
+
+    /**
+     * GZIP Response
+     *
+     * Makes the response GZIP compressed.  Returns
+     * this to make it chainable.
+     *
+     * @returns {exports}
+     */
+    gzipResponse: function () {
+        return this.use(restify.gzipResponse());
+    },
+
+
+
+    /**
+     * Output Handler
+     *
+     * This handles the output
+     *
+     * @param err
+     * @param data
+     * @param req
+     * @param res
+     * @param cb
+     */
+    outputHandler: function (err, data, req, res, cb) {
+
+        var statusCode = 200;
+        var output;
+
+        if (err) {
+
+            /* Convert to a Restify error and process */
+            if (err instanceof restify.RestError) {
+                /* Already a RestError - use it */
+                output = err;
+            } else {
+
+                /* Convert to a restify-friendly error */
+                statusCode = _.isFunction(err.getHttpCode) ? err.getHttpCode() : 500;
+                output = _.isFunction(err.getDetail) ? err.getDetail() : err;
+
+            }
+
+            /* Emit the error */
+            this.emit("error", err);
+
+        } else if (data) {
+            /* Success */
+            output = data;
+        } else {
+            /* No content */
+            statusCode = 204;
+        }
+
+        /* Push the output */
+        res.send(statusCode, output);
+
+        /* Activate the callback so the "after" event is triggered */
+        cb();
+
+    },
+
+
+    /**
+     * Pre
+     *
+     * Set up middleware to be ran at the start
+     * of the stack.
+     *
+     * @param fn
+     * @returns {exports}
+     */
+    pre: function (fn) {
+        this._server.pre(fn);
+        return this;
+    },
+
+
+    /**
      * Start
      *
      * Starts up the server and returns a promise
@@ -92,6 +219,55 @@ module.exports = Base.extend({
      */
     start: function () {
         return this._server.listenAsync(this.port);
+    },
+
+
+    /**
+     * Query Parser
+     *
+     * Parses the query strings.  The mapParams option
+     * allows you to decide if you want to map req.query
+     * to req.params - false by default.  Returns this
+     * to make it chainable.
+     *
+     * @param {boolean} mapParams
+     * @returns {exports}
+     */
+    queryParser: function (mapParams) {
+
+        mapParams = datatypes.setBool(mapParams, false);
+
+        return this.use(restify.queryParser({
+            mapParams: mapParams
+        }));
+    },
+
+
+    /**
+     * Uncaught Exception
+     *
+     * Listen to uncaught exceptions
+     *
+     * @param fn
+     */
+    uncaughtException: function (fn) {
+        this._server.on("uncaughtException", fn);
+        return this;
+    },
+
+
+    /**
+     * Use
+     *
+     * Exposes the use method on the server. Can accept
+     * a function or an array of functions.
+     *
+     * @param fn
+     * @returns {exports}
+     */
+    use: function (fn) {
+        this._server.use(fn);
+        return this;
     }
 
 

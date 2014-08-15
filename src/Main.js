@@ -11,6 +11,7 @@
 
 
 /* Third-party modules */
+var _ = require("lodash");
 var bunyan = require("bunyan");
 var steeplejack = require("steeplejack");
 
@@ -18,6 +19,7 @@ var Base = steeplejack.Base;
 
 
 /* Files */
+var Errors = require("./error");
 var Routes = require("./service/routes");
 var Server = require("./service/library/Server");
 
@@ -36,9 +38,6 @@ module.exports = Base.extend({
         /* Create logger */
         this._createLogger();
 
-        /* Add routes */
-        this._addRoutes();
-
         /* Create the web server */
         this._createServer();
 
@@ -54,13 +53,27 @@ module.exports = Base.extend({
      */
     _addRoutes: function () {
 
-        var routes = new Routes(this._container);
+        var server = this._server;
 
-        this._routes = routes.getRoutes();
+        /* Create a closure for the outputHandler */
+        var outputHandler = function () {
+            return server.outputHandler.apply(server, arguments);
+        };
+
+        var routes = new Routes(this._container, outputHandler);
+
+        return routes.getRoutes();
 
     },
 
 
+    /**
+     * Create Logger
+     *
+     * Creates the logger instance and sets the level
+     *
+     * @private
+     */
     _createLogger: function () {
         this._logger = bunyan.createLogger({
             name: this._config.server.name
@@ -94,19 +107,45 @@ module.exports = Base.extend({
     _createServer: function () {
 
         var config = this._config;
+        var logger = this._logger;
 
-        var server = new Server({
-            logger: this._logger,
+        this._server = new Server({
+            logger: logger,
             name: config.server.name,
             port: config.server.port
         });
 
+        /* Listen for errors */
+        this._server.on("error", function (err) {
+            if (err instanceof Errors.Validation) {
+                /* Debug validation errors */
+                logger.debug(err);
+            } else {
+                /* Error on non-validation errors */
+                logger.error(err);
+            }
+        });
+
+        /* Configure the server options */
+        this._server.acceptParser()
+            .bodyParser()
+            .gzipResponse()
+            .queryParser()
+            .uncaughtException(function (req, res, route, err) {
+                /* Listen for uncaught exceptions and note a fatal error */
+                logger.fatal(err);
+
+                var output = new Errors.Application("Unknown");
+                res.send(500, output.getDetail());
+            });
+
         /* Add in the routes to the server */
-        server.addRoutes(this._routes);
+        this._server.addRoutes(this._addRoutes());
 
         /* Start the server */
-        server.start()
+        this._server.start()
             .then(function () {
+                /* Send the config to STDOUT */
                 console.log("=== CONFIG ===");
                 console.log(JSON.stringify(config, null, 2));
             })
