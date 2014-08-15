@@ -44,7 +44,7 @@ _.extend(Application.prototype, {
         return {
             type: this.getType(),
             message: this.getMessage()
-        }
+        };
 
     },
 

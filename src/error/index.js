@@ -21,4 +21,4 @@ module.exports = {
     Application: require("./Application"),
     Store: require("./Store"),
     Validation: require("./Validation")
-}
+};

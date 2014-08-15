@@ -45,7 +45,7 @@ _.extend(Validation.prototype, {
             type: this.getType(),
             message: this.getMessage(),
             err: this.getErrors()
-        }
+        };
 
     },
 
