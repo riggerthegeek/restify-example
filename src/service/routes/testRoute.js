@@ -37,7 +37,7 @@ module.exports = function (container, outputHandler) {
 
         },
 
-        example: {
+        "/example": {
 
             get: [
                 function (req, res, cb) {
