@@ -107,9 +107,6 @@ module.exports = function (grunt) {
                         statements: 100
                     },
                     coverage: true,
-                    reportFormats: [
-                        "html"
-                    ],
                     recursive: true,
                     root: "./<%= config.src %>"
                 },
