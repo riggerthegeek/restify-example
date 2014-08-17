@@ -37,7 +37,7 @@ chai.use(require("sinon-chai"));
 var expect = chai.expect;
 
 
-describe("Application test", function () {
+describe("ApplicationError test", function () {
 
     describe("Instantation tests", function () {
 
