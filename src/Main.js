@@ -19,6 +19,8 @@ var Base = steeplejack.Base;
 
 
 /* Files */
+var AppServices = require("./application/AppServices");
+var DataServices = require("./data/DataServices");
 var Errors = require("./error");
 var Routes = require("./service/routes");
 var Server = require("./service/library/Server");
@@ -29,17 +31,20 @@ module.exports = Base.extend({
 
     _construct: function (config) {
 
-        /* Set config to the instance */
-        this._config = config;
-
         /* Create the injector */
-        this._createInjector();
+        var injector = this._createInjector();
 
         /* Create logger */
-        this._createLogger();
+        var logger = this._createLogger(config, injector);
+
+        /* Start the data services */
+        this._createDataServices(config, injector, logger);
+
+        /* Start the app services */
+        this._createAppServices(injector);
 
         /* Create the web server */
-        this._createServer();
+        this._createServer(config, logger, injector);
 
     },
 
@@ -49,20 +54,74 @@ module.exports = Base.extend({
      *
      * Adds the routes to the server
      *
+     * @param {object} server
+     * @param {object} injector
      * @private
      */
-    _addRoutes: function () {
-
-        var server = this._server;
+    _addRoutes: function (server, injector) {
 
         /* Create a closure for the outputHandler */
         var outputHandler = function () {
             return server.outputHandler.apply(server, arguments);
         };
 
-        var routes = new Routes(this._container, outputHandler);
+        var routes = new Routes(injector, outputHandler);
 
         return routes.getRoutes();
+
+    },
+
+
+    /**
+     * Create App Services
+     *
+     * Creats an instance of the app services and registers
+     * the services with the Injector.
+     *
+     * @param {object} injector
+     * @returns {object}
+     * @private
+     */
+    _createAppServices: function (injector) {
+
+        /* Invoke the application tier */
+        var appServices = new AppServices();
+
+        /* Flatten out the services and register the app services */
+        _.each(steeplejack.Injector.Parser(appServices.getServices(), "$", "service"), function (fn, name) {
+            injector.register(name, fn);
+        });
+
+        return appServices;
+
+    },
+
+
+    /**
+     * Create Data Services
+     *
+     * Creates an instance of the data services and registers
+     * the resources and stores with the Injector.
+     *
+     * @private
+     */
+    _createDataServices: function (config, injector, logger) {
+
+        /* Invoke the data tier */
+        var dataServices = new DataServices(config, logger);
+
+        /* Flatten out and register the data resources */
+        _.each(dataServices.getResources(), function (inst, name) {
+            name = "$" + name + "Resource";
+            injector.registerSingleton(name, inst);
+        });
+
+        /* And the stores */
+        _.each(steeplejack.Injector.Parser(dataServices.getStores(), "$", "store"), function (fn, name) {
+            injector.register(name, fn);
+        });
+
+        return dataServices;
 
     },
 
@@ -72,14 +131,23 @@ module.exports = Base.extend({
      *
      * Creates the logger instance and sets the level
      *
+     * @param {object} config
+     * @param {object} injector
+     * @returns {object}
      * @private
      */
-    _createLogger: function () {
-        this._logger = bunyan.createLogger({
-            name: this._config.server.name
+    _createLogger: function (config, injector) {
+        var logger = bunyan.createLogger({
+            name: config.server.name
         });
 
-        this._logger.level(this._config.logLevel);
+        /* Set the log level */
+        logger.level(config.logLevel);
+
+        /* Register this to the IOC container */
+        injector.registerSingleton("$logger", logger);
+
+        return logger;
     },
 
 
@@ -89,10 +157,11 @@ module.exports = Base.extend({
      * This creates an instance of the injector that allows
      * us to inject in dependencies.
      *
+     * @returns {object}
      * @private
      */
     _createInjector: function () {
-        this._container = new steeplejack.Injector();
+        return new steeplejack.Injector();
     },
 
 
@@ -102,21 +171,21 @@ module.exports = Base.extend({
      * Handles the creation of the server and adding of
      * the routes
      *
+     * @param {object} config
+     * @param {object} logger
+     * @param {object} injector
      * @private
      */
-    _createServer: function () {
+    _createServer: function (config, logger, injector) {
 
-        var config = this._config;
-        var logger = this._logger;
-
-        this._server = new Server({
+        var server = new Server({
             logger: logger,
             name: config.server.name,
             port: config.server.port
         });
 
         /* Listen for errors */
-        this._server.on("error", function (err) {
+        server.on("error", function (err) {
             if (err instanceof Errors.Validation) {
                 /* Debug validation errors */
                 logger.debug(err);
@@ -127,7 +196,7 @@ module.exports = Base.extend({
         });
 
         /* Configure the server options */
-        this._server.acceptParser()
+        server.acceptParser()
             .bodyParser()
             .gzipResponse()
             .queryParser()
@@ -140,19 +209,20 @@ module.exports = Base.extend({
             });
 
         /* Add in the routes to the server */
-        this._server.addRoutes(this._addRoutes());
+        server.addRoutes(this._addRoutes(server, injector));
 
         /* Start the server */
-        this._server.start()
-            .then(function () {
-                /* Send the config to STDOUT */
-                console.log("=== CONFIG ===");
-                console.log(JSON.stringify(config, null, 2));
-            })
-            .catch(function (err) {
-                /* Throw the error so it fails to start */
+        server.start(function (err) {
+            if (err) {
                 throw err;
-            });
+            }
+
+            /* Send the config to STDOUT */
+            console.log("=== CONFIG ===");
+            console.log(JSON.stringify(config, null, 2));
+        });
+
+        return server;
 
     }
 

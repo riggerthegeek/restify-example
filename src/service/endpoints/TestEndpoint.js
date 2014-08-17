@@ -16,10 +16,18 @@
 /* Files */
 
 
-module.exports = function () {
+module.exports = function ($logger, $testService) {
 
 
     return {
+
+
+        getHome: function (cb) {
+
+            $testService.getHome(cb);
+
+        }
+
 
     };
 

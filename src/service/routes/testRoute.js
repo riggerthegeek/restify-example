@@ -25,12 +25,11 @@ module.exports = function (container, outputHandler) {
             get: [
                 function (req, res, cb) {
 
-                    var err;
-                    var data = {
-                        fart: 3
-                    };
-
-                    outputHandler(err, data, req, res, cb);
+                    testEndpoint.getHome(
+                        function (err, data) {
+                            outputHandler(err, data, req, res, cb);
+                        }
+                    );
 
                 }
             ]

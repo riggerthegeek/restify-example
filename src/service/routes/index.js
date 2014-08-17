@@ -48,9 +48,9 @@ module.exports = Base.extend({
      * @private
      */
     _addRoute: function (route) {
-        var fn = require("./" + route);
+        var Route = require("./" + route);
 
-        return fn(this._container, this._outputHandler);
+        return new Route(this._container, this._outputHandler);
     },
 
 

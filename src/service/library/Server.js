@@ -12,7 +12,6 @@
 
 /* Third-party modules */
 var _ = require("lodash");
-var bluebird = require("bluebird");
 var restify = require("restify");
 var steeplejack = require("steeplejack");
 
@@ -46,8 +45,8 @@ module.exports = Base.extend({
             throw new Error("server port must be set as an integer");
         }
 
-        /* Create a promisified instance of the server */
-        self._server = bluebird.promisifyAll(restify.createServer({
+        /* Create instance of the server */
+        self._server = restify.createServer({
             certificate: options.certificate,
             formatters: options.formatters,
             handleUpgrades: options.handleUpgrades,
@@ -56,7 +55,7 @@ module.exports = Base.extend({
             name: options.name,
             spdy: options.spdy,
             version: options.version
-        }));
+        });
 
     },
 
@@ -215,10 +214,11 @@ module.exports = Base.extend({
      *
      * Starts up the server and returns a promise
      *
+     * @params {function} cb
      * @returns {*}
      */
-    start: function () {
-        return this._server.listenAsync(this.port);
+    start: function (cb) {
+        return this._server.listen(this.port, cb);
     },
 
 
