@@ -22,15 +22,6 @@ var Base = steeplejack.Base;
 module.exports = Base.extend({
 
 
-    _construct: function () {
-
-        this._services = {
-            Test: require("./Test/Service")
-        };
-
-    },
-
-
     /**
      * Get Services
      *
@@ -39,7 +30,9 @@ module.exports = Base.extend({
      * @returns {object}
      */
     getServices: function () {
-        return this._services;
+        return {
+            Test: require("./Test/Service")
+        };
     }
 
 
