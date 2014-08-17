@@ -44,7 +44,7 @@ _.extend(Validation.prototype, {
         return {
             type: this.getType(),
             message: this.getMessage(),
-            err: this.getErrors()
+            error: this.getErrors()
         };
 
     },
