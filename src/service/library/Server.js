@@ -66,7 +66,7 @@ module.exports = Base.extend({
      * Makes the server use the accept parse.  If
      * options are not an array, uses the default
      * restify options.  Returns this to make the
-     * method cainable.
+     * method chainable.
      *
      * @param options
      * @returns {exports}
