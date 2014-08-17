@@ -12,7 +12,6 @@
 
 /* Third-party modules */
 var _ = require("lodash");
-var bunyan = require("bunyan");
 var steeplejack = require("steeplejack");
 
 var Base = steeplejack.Base;
@@ -22,6 +21,7 @@ var Base = steeplejack.Base;
 var AppServices = require("./application/AppServices");
 var DataServices = require("./data/DataServices");
 var Errors = require("./error");
+var Logger = require("./service/library/Logger");
 var Routes = require("./service/routes");
 var Server = require("./service/library/Server");
 
@@ -137,12 +137,10 @@ module.exports = Base.extend({
      * @private
      */
     _createLogger: function (config, injector) {
-        var logger = bunyan.createLogger({
+        var logger = new Logger({
+            logLevel: config.logLevel,
             name: config.server.name
         });
-
-        /* Set the log level */
-        logger.level(config.logLevel);
 
         /* Register this to the IOC container */
         injector.registerSingleton("$logger", logger);
