@@ -15,12 +15,13 @@ var _ = require("lodash");
 var steeplejack = require("steeplejack");
 
 var Base = steeplejack.Base;
+var datatypes = Base.datatypes;
 
 
 /* Files */
 var AppServices = require("./application/AppServices");
 var DataServices = require("./data/DataServices");
-var Errors = require("./error");
+var errors = require("./error");
 var Logger = require("./service/library/Logger");
 var Routes = require("./service/routes");
 var Server = require("./service/library/Server");
@@ -30,6 +31,9 @@ module.exports = Base.extend({
 
 
     _construct: function (config) {
+
+        /* Default config to an object */
+        config = datatypes.setObject(config, {});
 
         /* Create the injector */
         var injector = this._createInjector();
@@ -137,6 +141,7 @@ module.exports = Base.extend({
      * @private
      */
     _createLogger: function (config, injector) {
+
         var logger = new Logger({
             logLevel: config.logLevel,
             name: config.server.name
@@ -176,6 +181,8 @@ module.exports = Base.extend({
      */
     _createServer: function (config, logger, injector) {
 
+        var self = this;
+
         var server = new Server({
             logger: logger,
             name: config.server.name,
@@ -184,7 +191,7 @@ module.exports = Base.extend({
 
         /* Listen for errors */
         server.on("error", function (err) {
-            if (err instanceof Errors.Validation) {
+            if (err instanceof errors.Validation) {
                 /* Debug validation errors */
                 logger.debug(err);
             } else {
@@ -202,7 +209,7 @@ module.exports = Base.extend({
                 /* Listen for uncaught exceptions and note a fatal error */
                 logger.fatal(err);
 
-                var output = new Errors.Application("Unknown");
+                var output = new errors.Application("Unknown");
                 res.send(500, output.getDetail());
             });
 
@@ -211,13 +218,14 @@ module.exports = Base.extend({
 
         /* Start the server */
         server.start(function (err) {
+
             if (err) {
                 throw err;
             }
 
-            /* Send the config to STDOUT */
-            console.log("=== CONFIG ===");
-            console.log(JSON.stringify(config, null, 2));
+            /* Emit the config - steeplejack sends to the STDOUT */
+            self.emit("config", config);
+
         });
 
         return server;
