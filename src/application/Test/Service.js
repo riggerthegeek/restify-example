@@ -12,31 +12,35 @@
 
 
 /* Third-party modules */
+var steeplejack = require("steeplejack");
+
+var Base = steeplejack.Base;
 
 
 /* Files */
 
 
-module.exports = function ($logger, $testStore) {
+module.exports = Base.extend({
 
 
-    return {
-
-        getHome: function (cb) {
-
-            $testStore.getUsers(function (err, result) {
-
-                if (err) {
-                    return cb(err);
-                }
-
-                cb(null, result);
-
-            });
-
-        }
-
-    };
+    _construct: function ($logger, $testStore) {
+        this._logger = $logger;
+        this._testStore = $testStore;
+    },
 
 
-};
+    getHome: function (cb) {
+
+        this._testStore.getUsers(function (err, result) {
+
+            if (err) {
+                return cb(err, null);
+            }
+
+            cb(null, result);
+
+        });
+
+    }
+
+});
