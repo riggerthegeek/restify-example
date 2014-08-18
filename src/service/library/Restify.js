@@ -131,6 +131,18 @@ module.exports = Base.extend({
 
 
     /**
+     * Get Server
+     *
+     * Returns the server instance
+     *
+     * @returns {*}
+     */
+    getServer: function () {
+        return this._server;
+    },
+
+
+    /**
      * GZIP Response
      *
      * Makes the response GZIP compressed.  Returns
@@ -147,13 +159,15 @@ module.exports = Base.extend({
     /**
      * Output Handler
      *
-     * This handles the output
+     * This handles the output.  This can be activated
+     * directly or bundled up into a closure and passed
+     * around.
      *
-     * @param err
-     * @param data
-     * @param req
-     * @param res
-     * @param cb
+     * @param {object} err
+     * @param {object} data
+     * @param {object} req
+     * @param {object} res
+     * @param {function} cb
      */
     outputHandler: function (err, data, req, res, cb) {
 
@@ -189,7 +203,9 @@ module.exports = Base.extend({
         res.send(statusCode, output);
 
         /* Activate the callback so the "after" event is triggered */
-        cb();
+        if (_.isFunction(cb)) {
+            cb();
+        }
 
     },
 
@@ -218,7 +234,7 @@ module.exports = Base.extend({
      * @returns {*}
      */
     start: function (cb) {
-        return this._server.listen(this.port, cb);
+        return this.getServer().listen(this.port, cb);
     },
 
 

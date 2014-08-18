@@ -9,9 +9,11 @@
 
 
 /* Node modules */
+var fs = require("fs");
 
 
 /* Third-party modules */
+var _ = require("lodash");
 var steeplejack = require("steeplejack");
 
 var Base = steeplejack.Base;
@@ -29,9 +31,45 @@ module.exports = Base.extend({
         this._outputHandler = outputHandler;
 
         /* Create the router object with the top level routes */
-        this._routes = new steeplejack.Router({
-            test: this._addRoute("testRoute")
-        });
+        this._routes = new steeplejack.Router(this._getTopLevelRoutes());
+
+    },
+
+
+    /**
+     * Get Top Level Routes
+     *
+     * This gets the top level routes.  This looks for
+     * files ending "Route.js".  Whilst it's not terribly
+     * good form to do synchronous file tasks, as this
+     * is only run once and before the server starts,
+     * it's acceptable.
+     *
+     * @returns {object}
+     * @private
+     */
+    _getTopLevelRoutes: function () {
+
+        return _.reduce(fs.readdirSync(__dirname), function (result, filename) {
+
+            /**
+             * Split into segments - first is require name,
+             * second is route name, third looks for "Route."
+             * as we don't care about the extension
+             */
+            var segments = filename.match(/^((\w{1,})(Route))\./);
+
+            if (segments !== null) {
+                var requireName = segments[1];
+                var route = segments[2];
+
+                /* Add the route to the stack */
+                result[route] = this._addRoute(requireName);
+            }
+
+            return result;
+
+        }, {}, this);
 
     },
 

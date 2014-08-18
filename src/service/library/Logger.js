@@ -46,7 +46,7 @@ module.exports = Base.extend({
         /* Set the log level - default to error */
         var logLevel = datatypes.setEnum(options.logLevel, logLevels, "error");
 
-        /* Create the log functions - these are all basically the same */
+        /* Create the log functions - these are all basically the same so do it programmatically */
         _.each(logLevels, function (level) {
             this[level] = function () {
                 return this._logger[level].apply(this._logger, arguments);

@@ -24,7 +24,7 @@ var DataServices = require("./data/DataServices");
 var errors = require("./error");
 var Logger = require("./service/library/Logger");
 var Routes = require("./service/routes");
-var Server = require("./service/library/Server");
+var Restify = require("./service/library/Restify");
 
 
 module.exports = Base.extend({
@@ -58,16 +58,11 @@ module.exports = Base.extend({
      *
      * Adds the routes to the server
      *
-     * @param {object} server
      * @param {object} injector
+     * @param {function} outputHandler
      * @private
      */
-    _addRoutes: function (server, injector) {
-
-        /* Create a closure for the outputHandler */
-        var outputHandler = function () {
-            return server.outputHandler.apply(server, arguments);
-        };
+    _addRoutes: function (injector, outputHandler) {
 
         var routes = new Routes(injector, outputHandler);
 
@@ -114,13 +109,12 @@ module.exports = Base.extend({
         /* Invoke the data tier */
         var dataServices = new DataServices(config, logger);
 
-        /* Flatten out and register the data resources */
-        _.each(dataServices.getResources(), function (inst, name) {
-            name = "$" + name + "Resource";
+        /* Register the data services - no flattening required */
+        _.each(steeplejack.Injector.Parser(dataServices.getResources(), "$", "Resource", false), function (inst, name) {
             injector.registerSingleton(name, inst);
         });
 
-        /* And the stores */
+        /* And the stores - these need flattening out */
         _.each(steeplejack.Injector.Parser(dataServices.getStores(), "$", "store"), function (fn, name) {
             injector.register(name, fn);
         });
@@ -183,19 +177,24 @@ module.exports = Base.extend({
 
         var self = this;
 
-        var server = new Server({
+        var server = new Restify({
             logger: logger,
             name: config.server.name,
             port: config.server.port
         });
 
+        /* Create a closure for the outputHandler */
+        var outputHandler = function () {
+            return server.outputHandler.apply(server, arguments);
+        };
+
         /* Listen for errors */
         server.on("error", function (err) {
             if (err instanceof errors.Validation) {
-                /* Debug validation errors */
+                /* Log validation errors as debug */
                 logger.debug(err);
             } else {
-                /* Error on non-validation errors */
+                /* Log everything else as an error */
                 logger.error(err);
             }
         });
@@ -209,12 +208,14 @@ module.exports = Base.extend({
                 /* Listen for uncaught exceptions and note a fatal error */
                 logger.fatal(err);
 
-                var output = new errors.Application("Unknown");
-                res.send(500, output.getDetail());
+                outputHandler(new errors.Application("Unknown"), null, req, res, null);
             });
 
+        /* Get the routes */
+        var routes = this._addRoutes(injector, outputHandler);
+
         /* Add in the routes to the server */
-        server.addRoutes(this._addRoutes(server, injector));
+        server.addRoutes(routes);
 
         /* Start the server */
         server.start(function (err) {

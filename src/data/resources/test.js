@@ -32,6 +32,12 @@ module.exports = function (config, $logger) {
                 lastName: "Testington",
                 emailAddress: "test@test.com",
                 created: new Date()
+            }, {
+                id: 2,
+                firstName: "Test2",
+                lastName: "Testington2",
+                emailAddress: "test2@test.com",
+                created: new Date()
             }]);
 
         }
