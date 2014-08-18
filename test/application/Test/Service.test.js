@@ -107,7 +107,7 @@ describe("Service test", function () {
 
                 obj.getHome(function (err, result) {
 
-                    expect(testStore.getUsers).to.be.have.been.calledOnce;
+                    expect(testStore.getUsers).to.have.been.calledOnce;
 
                     expect(err).to.be.equal(err);
                     expect(result).to.be.null;
