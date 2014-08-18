@@ -30,14 +30,9 @@ module.exports = Base.extend({
         /* Make sure it's an object */
         config = datatypes.setObject(config, {});
 
-        /* Build the resources */
+        /* Build the resources - would recommend returning a generic-pool instance */
         this._resources = {
             test: testResource(config, logger)
-        };
-
-        /* Build the stores */
-        this._stores = {
-            test: require("./stores/test")
         };
 
     },
@@ -65,7 +60,9 @@ module.exports = Base.extend({
      * @returns {object}
      */
     getStores: function () {
-        return this._stores;
+        return {
+            test: require("./stores/test")
+        };
     }
 
 
