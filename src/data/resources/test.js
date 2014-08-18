@@ -12,14 +12,12 @@
 
 
 /* Third-party modules */
-var steeplejack = require("steeplejack");
-var datatypes = steeplejack.Base.datatypes;
 
 
 /* Files */
 
 
-module.exports = function (config, $logger) {
+module.exports = function (config, logger) {
 
     /* This example works like a simple SQL handler */
     return {
