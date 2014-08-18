@@ -12,23 +12,26 @@
 
 
 /* Third-party modules */
+var steeplejack = require("steeplejack");
+
+var Base = steeplejack.Base;
 
 
 /* Files */
 
 
-module.exports = function ($logger, $testResource) {
+module.exports = Base.extend({
 
-    return {
-
-
-        getUsers: function (cb) {
-
-            $testResource.query("SELECT * FROM users", cb);
-
-        }
+    _construct: function ($logger, $testResource) {
+        this._logger = $logger;
+        this._testResource = $testResource;
+    },
 
 
-    };
+    getUsers: function (cb) {
 
-};
+        this._testResource.query("SELECT * FROM users", cb);
+
+    }
+
+});
