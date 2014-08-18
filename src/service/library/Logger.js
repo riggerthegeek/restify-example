@@ -1,7 +1,7 @@
 /**
  * Logger
  *
- * Factory for the Bunyan
+ * Factory for the Bunyan logger
  */
 
 "use strict";
@@ -12,7 +12,6 @@
 
 /* Third-party modules */
 var _ = require("lodash");
-var bunyan = require("bunyan");
 var steeplejack = require("steeplejack");
 
 var Base = steeplejack.Base;
@@ -22,10 +21,12 @@ var datatypes = Base.datatypes;
 /* Files */
 
 
-module.exports = Base.extend({
+var Logger = Base.extend({
 
 
     _construct: function (options) {
+
+        var bunyan = Logger.Bunyan();
 
         options = datatypes.setObject(options, {});
 
@@ -61,4 +62,22 @@ module.exports = Base.extend({
     }
 
 
+}, {
+
+    /**
+     * Bunyan
+     *
+     * Gets the Bunyan instance.  Put here so it can be
+     * easily stubbed for testing
+     *
+     * @returns {*}
+     * @constructor
+     */
+    Bunyan: function () {
+        return require("bunyan");
+    }
+
 });
+
+
+module.exports = Logger;
