@@ -68,7 +68,8 @@ describe("AppServices test", function () {
                         "Test"
                     ]);
 
-                expect(services.Test).to.be.a("function");
+                expect(services.Test).to.be.a("function")
+                    .to.be.equal(rootRequire("./src/application/Test/Service"));
 
             });
 
