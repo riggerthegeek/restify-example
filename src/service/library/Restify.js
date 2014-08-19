@@ -1,7 +1,8 @@
 /**
- * Server
+ * Restify
  *
- * ***DESCRIPTION***
+ * A factory to build an instance of the Restify
+ * framework.
  */
 
 "use strict";
