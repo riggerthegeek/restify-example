@@ -79,6 +79,38 @@ module.exports = Base.extend({
 
 
     /**
+     * Accept Parser Strict
+     *
+     * This is identical to the acceptParser method, except
+     * that the accept header must have the accept header
+     * exactly.  There is no coercion around the mime type.
+     *
+     * @param options
+     * @returns {exports}
+     */
+    acceptParserStrict: function (options) {
+        options = datatypes.setArray(options, this._server.acceptable);
+
+        return this.use(function (req, res, cb) {
+
+            if (options.indexOf(req.headers.accept) !== -1) {
+                /* Valid accept header */
+                cb();
+                return;
+            }
+
+            /* Uh-oh - problem */
+            var err = new restify.NotAcceptableError("Server accepts: " + options.join());
+
+            res.json(err);
+            cb(false);
+
+        });
+
+    },
+
+
+    /**
      * Add Routes
      *
      * Takes the route object and adds to the server

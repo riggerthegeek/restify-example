@@ -200,7 +200,7 @@ module.exports = Base.extend({
         });
 
         /* Configure the server options */
-        server.acceptParser()
+        server.acceptParserStrict()
             .bodyParser()
             .gzipResponse()
             .queryParser()
