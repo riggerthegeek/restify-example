@@ -12,11 +12,12 @@
 
 
 /* Files */
+var TestEndpoint = require("../endpoints/TestEndpoint");
 
 
 module.exports = function (container, outputHandler) {
 
-    var testEndpoint = container.process(require("../endpoints/TestEndpoint"));
+    var endpoint = container.process(TestEndpoint);
 
     return {
 
@@ -25,7 +26,7 @@ module.exports = function (container, outputHandler) {
             get: [
                 function (req, res, cb) {
 
-                    testEndpoint.getHome(
+                    endpoint.getHome(
                         function (err, data) {
                             outputHandler(err, data, req, res, cb);
                         }
