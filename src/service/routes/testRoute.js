@@ -44,8 +44,7 @@ module.exports = function (container, outputHandler) {
 
                     var err;
                     var data = {
-                        fart: 2,
-                        query: req.query
+                        stubbed: {}
                     };
 
                     outputHandler(err, data, req, res, cb);
