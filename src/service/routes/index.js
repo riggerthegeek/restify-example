@@ -22,7 +22,7 @@ var Base = steeplejack.Base;
 /* Files */
 
 
-module.exports = Base.extend({
+var Routes = Base.extend({
 
 
     _construct: function (container, outputHandler) {
@@ -39,18 +39,14 @@ module.exports = Base.extend({
     /**
      * Get Top Level Routes
      *
-     * This gets the top level routes.  This looks for
-     * files ending "Route.js".  Whilst it's not terribly
-     * good form to do synchronous file tasks, as this
-     * is only run once and before the server starts,
-     * it's acceptable.
+     * This gets the top level route file names
      *
      * @returns {object}
      * @private
      */
     _getTopLevelRoutes: function () {
 
-        return _.reduce(fs.readdirSync(__dirname), function (result, filename) {
+        return _.reduce(Routes.GetRouteFiles(), function (result, filename) {
 
             /**
              * Split into segments - first is require name,
@@ -64,31 +60,15 @@ module.exports = Base.extend({
                 var route = segments[2];
 
                 /* Add the route to the stack */
-                result[route] = this._addRoute(requireName);
+                var Route = Routes.LoadFile(requireName);
+
+                result[route] = new Route(this._container, this._outputHandler);
             }
 
             return result;
 
         }, {}, this);
 
-    },
-
-
-    /**
-     * Add Route
-     *
-     * Adds a new route.  If the route isn't found,
-     * or isn't a function, it will throw an error
-     * and stop the server starting.
-     *
-     * @param route
-     * @returns {*}
-     * @private
-     */
-    _addRoute: function (route) {
-        var Route = require("./" + route);
-
-        return new Route(this._container, this._outputHandler);
     },
 
 
@@ -104,4 +84,40 @@ module.exports = Base.extend({
     }
 
 
+}, {
+
+
+    /**
+     * Load File
+     *
+     * Loads up the file and returns the constructor. Put
+     * into a static method so it can be stubbed for testing.
+     *
+     * @param {string} route
+     * @returns {function}
+     */
+    LoadFile: function (route) {
+        return require("./" + route);
+    },
+
+
+    /**
+     * Get Route Files
+     *
+     * Gets the route files.  Whilst it's not terribly
+     * good form to do synchronous file tasks, as this
+     * is only run once and before the server starts,
+     * it's probably acceptable.
+     *
+     * @returns {object}
+     * @private
+     */
+    GetRouteFiles: function () {
+        return fs.readdirSync(__dirname);
+    }
+
+
 });
+
+
+module.exports = Routes;
