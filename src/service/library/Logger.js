@@ -17,6 +17,7 @@
 var steeplejack = require("steeplejack");
 
 var Base = steeplejack.Base;
+var datatypes = Base.datatypes;
 
 
 /* Files */
@@ -28,12 +29,17 @@ module.exports = Base.extend({
     /**
      * Set Level
      *
-     * Sets the log level
+     * Sets the log level. Defaults to "error"
      *
      * @param {string} level
      */
     setLevel: function (level) {
+
+        /* Set the log level - default to error */
+        level = datatypes.setString(level, "error");
+
         this._setLevel(level);
+
     },
 
 
@@ -44,31 +50,71 @@ module.exports = Base.extend({
      */
 
 
+    /**
+     * Fatal
+     *
+     * The most severe form of error
+     *
+     * @param {string} message
+     * @returns {*}
+     */
     fatal: function (message) {
         return this._trigger(6, message);
     },
 
 
+    /**
+     * Error
+     *
+     * @param {string} message
+     * @returns {*}
+     */
     error: function (message) {
         return this._trigger(5, message);
     },
 
 
+    /**
+     * Warn
+     *
+     * @param {string} message
+     * @returns {*}
+     */
     warn: function (message) {
         return this._trigger(4, message);
     },
 
 
+    /**
+     * Info
+     *
+     * @param {string} message
+     * @returns {*}
+     */
     info: function (message) {
         return this._trigger(3, message);
     },
 
 
+    /**
+     * Debug
+     *
+     * @param {string} message
+     * @returns {*}
+     */
     debug: function (message) {
         return this._trigger(2, message);
     },
 
 
+    /**
+     * Trace
+     *
+     * The least severe form of error
+     *
+     * @param {string} message
+     * @returns {*}
+     */
     trace: function (message) {
         return this._trigger(1, message);
     }

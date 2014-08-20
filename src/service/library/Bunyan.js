@@ -34,22 +34,37 @@ module.exports = Logger.extend({
             name: options.name
         });
 
-        /* Set the log level - default to error */
-        var logLevel = datatypes.setString(options.logLevel, "error");
-
         /* Set the log level */
-        this.setLevel(logLevel);
+        this.setLevel(options.logLevel);
 
         return this;
 
     },
 
 
+    /**
+     * Set Level
+     *
+     * Sets the logging threshold
+     *
+     * @param {string} level
+     * @private
+     */
     _setLevel: function (level) {
         this._logger.level(level);
     },
 
 
+    /**
+     * Trigger
+     *
+     * Triggers the logger to record something.
+     *
+     * @param {number} level
+     * @param {string} message
+     * @returns {*}
+     * @private
+     */
     _trigger: function (level, message) {
 
         var rtn;
