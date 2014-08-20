@@ -1,5 +1,5 @@
 /**
- * Logger
+ * Bunyan
  */
 
 "use strict";
@@ -29,6 +29,7 @@ var Base = steeplejack.Base;
 /* Third-party modules */
 var chai = require("chai");
 var sinon = require("sinon");
+var proxyquire = require("proxyquire");
 
 
 /* Files */
@@ -39,10 +40,11 @@ chai.use(require("sinon-chai"));
 var expect = chai.expect;
 
 
-describe("Logger test", function () {
+describe("Bunyan test", function () {
 
-    var Bunyan,
-        inst;
+    var inst,
+        Bunyan,
+        bunyanStub;
     beforeEach(function () {
         inst = {
             level: sinon.stub(),
@@ -53,10 +55,20 @@ describe("Logger test", function () {
             debug: sinon.stub(),
             trace: sinon.stub()
         };
-        Bunyan = {
+
+        bunyanStub = {
             createLogger: sinon.stub()
-                .returns(inst)
         };
+        bunyanStub.createLogger
+            .withArgs({
+                name: undefined
+            })
+            .throws(new TypeError("options.name (string) is required"));
+        bunyanStub.createLogger
+            .returns(inst);
+        Bunyan = proxyquire("../../../src/service/library/Bunyan", {
+            bunyan: bunyanStub
+        });
     });
 
     describe("Instantiation tests", function () {
@@ -67,7 +79,7 @@ describe("Logger test", function () {
             var fail = false;
 
             try {
-                obj = new Logger();
+                obj = new Bunyan();
             } catch (err) {
 
                 fail = true;
@@ -87,19 +99,18 @@ describe("Logger test", function () {
 
         it("should return an instance when name provided and default to error level", function () {
 
-            var stub = sinon.stub(Logger, "Bunyan")
-                .returns(Bunyan);
-
-            var obj = new Logger({
+            var obj = new Bunyan({
                 name: "test"
             });
 
-            expect(stub).to.have.been.calledOnce;
-
-            expect(Bunyan.createLogger).to.have.been.calledOnce
+            expect(bunyanStub.createLogger).to.have.been.calledOnce
                 .to.be.calledWith({
                     name: "test"
                 });
+
+            expect(obj).to.be.instanceof(Bunyan)
+                .to.be.instanceof(Logger)
+                .to.be.instanceof(Base);
 
             expect(inst.level).to.have.been.calledOnce
                 .calledWith("error");
@@ -111,23 +122,16 @@ describe("Logger test", function () {
             expect(obj.debug).to.be.a("function");
             expect(obj.trace).to.be.a("function");
 
-            stub.restore();
-
         });
 
-        it("should return an instance when name provided and default to error level", function () {
+        it("should return an instance when name provided and set the error level", function () {
 
-            var stub = sinon.stub(Logger, "Bunyan")
-                .returns(Bunyan);
-
-            var obj = new Logger({
+            var obj = new Bunyan({
                 logLevel: "debug",
                 name: "test"
             });
 
-            expect(stub).to.have.been.calledOnce;
-
-            expect(Bunyan.createLogger).to.have.been.calledOnce
+            expect(bunyanStub.createLogger).to.have.been.calledOnce
                 .to.be.calledWith({
                     name: "test"
                 });
@@ -142,27 +146,17 @@ describe("Logger test", function () {
             expect(obj.debug).to.be.a("function");
             expect(obj.trace).to.be.a("function");
 
-            stub.restore();
-
         });
 
     });
 
     describe("Methods", function () {
 
-        var stub,
-            obj;
+        var obj;
         beforeEach(function () {
-            stub = sinon.stub(Logger, "Bunyan")
-                .returns(Bunyan);
-
-            obj = new Logger({
+            obj = new Bunyan({
                 name: "test"
             });
-        });
-
-        afterEach(function () {
-            stub.restore();
         });
 
         describe("#fatal", function () {

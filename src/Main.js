@@ -22,7 +22,7 @@ var datatypes = Base.datatypes;
 var AppServices = require("./application/AppServices");
 var DataServices = require("./data/DataServices");
 var errors = require("./error");
-var Logger = require("./service/library/Logger");
+var Log4JS = require("./service/library/Log4JS");
 var Routes = require("./service/routes");
 var Restify = require("./service/library/Restify");
 
@@ -136,7 +136,7 @@ module.exports = Base.extend({
      */
     _createLogger: function (config, injector) {
 
-        var logger = new Logger({
+        var logger = new Log4JS({
             logLevel: config.logLevel,
             name: config.server.name
         });
@@ -208,7 +208,7 @@ module.exports = Base.extend({
                 /* Listen for uncaught exceptions and note a fatal error */
                 logger.fatal(err);
 
-                outputHandler(new errors.Application("Unknown"), null, req, res, null);
+                outputHandler(new errors.Application("Unknown fatal error"), null, req, res, null);
             });
 
         /* Get the routes */

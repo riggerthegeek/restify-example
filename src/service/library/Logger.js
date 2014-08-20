@@ -1,7 +1,10 @@
 /**
  * Logger
  *
- * Factory for the Bunyan logger
+ * Presents a consistent interface for the Logger
+ * class.  Individual logger types (bunyan, log4js)
+ * should extend this.  This can be thought of in
+ * the same way as an abstracted class.
  */
 
 "use strict";
@@ -11,73 +14,64 @@
 
 
 /* Third-party modules */
-var _ = require("lodash");
 var steeplejack = require("steeplejack");
 
 var Base = steeplejack.Base;
-var datatypes = Base.datatypes;
 
 
 /* Files */
 
 
-var Logger = Base.extend({
+module.exports = Base.extend({
 
-
-    _construct: function (options) {
-
-        var bunyan = Logger.Bunyan();
-
-        options = datatypes.setObject(options, {});
-
-        /* This is highest-to-lowest */
-        var logLevels = [
-            "fatal",
-            "error",
-            "warn",
-            "info",
-            "debug",
-            "trace"
-        ];
-
-        this._logger = bunyan.createLogger({
-            name: options.name
-        });
-
-        /* Set the log level - default to error */
-        var logLevel = datatypes.setEnum(options.logLevel, logLevels, "error");
-
-        /* Create the log functions - these are all basically the same so do it programmatically */
-        _.each(logLevels, function (level) {
-            this[level] = function () {
-                return this._logger[level].apply(this._logger, arguments);
-            };
-        }, this);
-
-        /* Set the log level */
-        this._logger.level(logLevel);
-
-        return this;
-
-    }
-
-
-}, {
 
     /**
-     * Bunyan
+     * Set Level
      *
-     * Gets the Bunyan instance.  Put here so it can be
-     * easily stubbed for testing
+     * Sets the log level
      *
-     * @returns {*}
-     * @constructor
+     * @param {string} level
      */
-    Bunyan: function () {
-        return require("bunyan");
+    setLevel: function (level) {
+        this._setLevel(level);
+    },
+
+
+    /**
+     * Triggers
+     *
+     * This is in order, from most to least severe
+     */
+
+
+    fatal: function (message) {
+        return this._trigger(6, message);
+    },
+
+
+    error: function (message) {
+        return this._trigger(5, message);
+    },
+
+
+    warn: function (message) {
+        return this._trigger(4, message);
+    },
+
+
+    info: function (message) {
+        return this._trigger(3, message);
+    },
+
+
+    debug: function (message) {
+        return this._trigger(2, message);
+    },
+
+
+    trace: function (message) {
+        return this._trigger(1, message);
     }
 
+
 });
-
-
-module.exports = Logger;
