@@ -105,6 +105,25 @@ describe("Main test", function () {
 
         });
 
+        it("should throw an error if an error returned by the server start", function () {
+
+            var error = new Error("Some error");
+
+            RestifyInst.start
+                .yields(error);
+
+            var fail = false;
+            try {
+                var obj = new Main(config);
+            } catch (err) {
+                fail = true;
+                expect(err).to.be.equal(error);
+            } finally {
+                expect(fail).to.be.true;
+            }
+
+        });
+
     });
 
 });
