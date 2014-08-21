@@ -22,7 +22,7 @@ var datatypes = Base.datatypes;
 var AppServices = require("./application/AppServices");
 var DataServices = require("./data/DataServices");
 var errors = require("./error");
-var Log4JS = require("./service/library/Log4JS");
+var Logger = require("./service/library/Bunyan");
 var Routes = require("./service/routes");
 var Restify = require("./service/library/Restify");
 
@@ -136,7 +136,7 @@ module.exports = Base.extend({
      */
     _createLogger: function (config, injector) {
 
-        var logger = new Log4JS({
+        var logger = new Logger({
             logLevel: config.logLevel,
             name: config.server.name
         });
