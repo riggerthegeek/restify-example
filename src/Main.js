@@ -25,6 +25,7 @@ var errors = require("./error");
 var Bunyan = require("./service/library/Bunyan");
 var Routes = require("./service/routes");
 var Restify = require("./service/library/Restify");
+var UncaughtError = require("./error/Uncaught");
 
 
 module.exports = Base.extend({
@@ -193,7 +194,10 @@ module.exports = Base.extend({
             if (err instanceof errors.Validation) {
                 /* Log validation errors as debug */
                 logger.debug(err);
-            } else {
+            } else if (err instanceof errors.Application && err instanceof UncaughtError === false) {
+                /* Should never see this - log as fatal */
+                logger.fatal(err);
+            } else if (err instanceof UncaughtError === false) {
                 /* Log everything else as an error */
                 logger.error(err);
             }
@@ -205,10 +209,11 @@ module.exports = Base.extend({
             .gzipResponse()
             .queryParser()
             .uncaughtException(function (req, res, route, err) {
-                /* Listen for uncaught exceptions and note a fatal error */
+                /* Log this error */
                 logger.fatal(err);
 
-                outputHandler(new errors.Application("Unknown fatal error"), null, req, res, null);
+                /* Send an Uncaught error to the front-end so logger can ignore it */
+                outputHandler(new UncaughtError("Unknown fatal error"), null, req, res, null);
             });
 
         /* Get the routes */
