@@ -23,7 +23,6 @@ var AppServices = require("./application/AppServices");
 var DataServices = require("./data/DataServices");
 var errors = require("./error");
 var Bunyan = require("./service/library/Bunyan");
-var Bunyan = require("./service/library/Bunyan");
 var Routes = require("./service/routes");
 var Restify = require("./service/library/Restify");
 
