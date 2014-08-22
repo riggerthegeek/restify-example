@@ -5,6 +5,10 @@
  * of the Application error, but it's only to be used when
  * the stack detects an uncaught exception.
  *
+ * CARE SHOULD BE TAKEN WHEN USING THIS. AS A RULE OF THUMB,
+ * IT SHOULD ONLY BE USED WHEN RECOVERING FROM UNCAUGHT ERRORS.
+ * IF IN DOUBT, USE AN APPLICATION ERROR!!!
+ *
  * This cannot be recovered from.
  */
 
