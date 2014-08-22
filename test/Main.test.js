@@ -35,7 +35,7 @@ var steeplejack = require("steeplejack");
 /* Files */
 var config = rootRequire("./config");
 var Errors = rootRequire("./src/error");
-var UncaughtException = rootRequire("./src/error/Uncaught");
+var UncaughtError = rootRequire("./src/error/Uncaught");
 
 
 chai.use(require("sinon-chai"));
@@ -46,7 +46,9 @@ describe("Main test", function () {
 
     var Main,
         RestifyInst,
-        RestifyStub;
+        RestifyStub,
+        BunyanInst,
+        BunyanStub;
     beforeEach(function () {
 
         RestifyInst = {
@@ -80,8 +82,19 @@ describe("Main test", function () {
             return RestifyInst;
         };
 
+        BunyanInst = {
+            debug: sinon.stub(),
+            error: sinon.stub(),
+            fatal: sinon.stub()
+        };
+
+        BunyanStub = function () {
+            return BunyanInst;
+        };
+
         Main = proxyquire("../src/Main", {
-            "./service/library/Restify": RestifyStub
+            "./service/library/Restify": RestifyStub,
+            "./service/library/Bunyan": BunyanStub
         });
     });
 
@@ -180,14 +193,50 @@ describe("Main test", function () {
 
         });
 
+        it("should handle an uncaught exception", function () {
+
+            var uncaughtFn;
+            RestifyInst.uncaughtException = function (fn) {
+                uncaughtFn = fn;
+            };
+
+            RestifyInst.start
+                .yieldsAsync(null);
+
+            /* Create the server */
+            var obj = new Main(config)
+                .on("config", function () {
+
+                    var err = new Error("Some error");
+
+                    var req = {},
+                        res = {};
+
+                    uncaughtFn(req, res, null, err);
+
+                    expect(BunyanInst.fatal).to.be.calledOnce
+                        .calledWith(err);
+
+                    expect(BunyanInst.debug).to.not.be.called;
+                    expect(BunyanInst.error).to.not.be.called;
+
+                    expect(RestifyInst.outputHandler).to.be.calledOnce
+                        .calledWithMatch({
+                            message: "Unknown fatal error",
+                            type: "UncaughtError" /* This is a bit more coupled than I'd like */
+                        }, null, {}, res, null);
+
+                });
+
+
+        });
+
     });
 
     describe("Error handling", function () {
 
         var Restify,
-            RestifyInst,
-            BunyanInst,
-            BunyanStub;
+            RestifyInst;
         beforeEach(function () {
 
             Restify = rootRequire("./src/service/library/Restify");
@@ -200,16 +249,6 @@ describe("Main test", function () {
             RestifyStub = function () {
                 return RestifyInst;
             };
-
-            BunyanInst = {
-                debug: sinon.stub(),
-                error: sinon.stub(),
-                fatal: sinon.stub()
-            };
-
-            BunyanStub = function () {
-                return BunyanInst;
-            }
 
             Main = proxyquire("../src/Main", {
                 "./service/library/Restify": RestifyStub,
@@ -289,7 +328,7 @@ describe("Main test", function () {
             var obj = new Main(config)
                 .on("config", function () {
 
-                    var err = new UncaughtException("Some error");
+                    var err = new UncaughtError("Some error");
 
                     /* Emit this error through the server */
                     RestifyInst.emit("error", err);
