@@ -34,7 +34,12 @@ module.exports = function ($logger, $testResource) {
 
                     $testResource.release(client);
 
-                    cb(err, result);
+                    if (err) {
+                        cb(err, null);
+                        return;
+                    }
+
+                    cb(null, result);
 
                 });
 
