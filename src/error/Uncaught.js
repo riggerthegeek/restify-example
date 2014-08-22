@@ -30,6 +30,8 @@ function Uncaught (message) {
 
     ApplicationError.apply(this, arguments);
 
+    this.type = "UncaughtError";
+
 }
 
 
