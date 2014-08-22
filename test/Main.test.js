@@ -34,6 +34,8 @@ var steeplejack = require("steeplejack");
 
 /* Files */
 var config = rootRequire("./config");
+var Errors = rootRequire("./src/error");
+var UncaughtException = rootRequire("./src/error/Uncaught");
 
 
 chai.use(require("sinon-chai"));
@@ -121,6 +123,184 @@ describe("Main test", function () {
             } finally {
                 expect(fail).to.be.true;
             }
+
+        });
+
+        it("should use the outputHandler and publish to the server.outputHandler method", function (done) {
+
+            var routes;
+
+            var RouteStub = function (injector, outputHandler) {
+                return {
+                    getRoutes: function () {
+                        routes = {
+                            "/example": {
+                                get: function (req, res, cb) {
+
+                                    var err = "err";
+                                    var data = "data";
+                                    outputHandler(err, data, req, res, cb);
+                                }
+                            }
+                        };
+
+                        return routes;
+                    }
+
+                };
+            };
+
+            Main = proxyquire("../src/Main", {
+                "./service/routes": RouteStub,
+                "./service/library/Restify": RestifyStub
+            });
+
+            RestifyInst.start
+                .yieldsAsync(null);
+
+            RestifyInst.outputHandler
+                .yields(null);
+
+            /* Create the server */
+            var obj = new Main(config)
+                .on("config", function () {
+
+                    expect(RestifyInst.addRoutes).to.be.calledOnce
+                        .calledWith(routes);
+
+                    routes["/example"].get({}, {}, function () {
+
+                        expect(RestifyInst.outputHandler).to.be.calledOnce
+                            .calledWith("err", "data");
+
+                        done();
+                    });
+
+                });
+
+        });
+
+    });
+
+    describe("Error handling", function () {
+
+        var Restify,
+            RestifyInst,
+            BunyanInst,
+            BunyanStub;
+        beforeEach(function () {
+
+            Restify = rootRequire("./src/service/library/Restify");
+            RestifyInst = new Restify({
+                port: 3000
+            });
+            RestifyInst.start = sinon.stub()
+                .yieldsAsync(null);
+
+            RestifyStub = function () {
+                return RestifyInst;
+            };
+
+            BunyanInst = {
+                debug: sinon.stub(),
+                error: sinon.stub(),
+                fatal: sinon.stub()
+            };
+
+            BunyanStub = function () {
+                return BunyanInst;
+            }
+
+            Main = proxyquire("../src/Main", {
+                "./service/library/Restify": RestifyStub,
+                "./service/library/Bunyan": BunyanStub
+            });
+
+        });
+
+        it("should listen for a Validation error and log to debug", function (done) {
+
+            var obj = new Main(config)
+                .on("config", function () {
+
+                    var err = new Errors.Validation("Some validation error");
+
+                    /* Emit this error through the server */
+                    RestifyInst.emit("error", err);
+
+                    expect(BunyanInst.debug).to.be.calledOnce
+                        .calledWith(err);
+
+                    expect(BunyanInst.error).to.not.be.called;
+                    expect(BunyanInst.fatal).to.not.be.called;
+
+                    done();
+
+                });
+
+        });
+
+        it("should listen for an Application error and log to fatal", function (done) {
+
+            var obj = new Main(config)
+                .on("config", function () {
+
+                    var err = new Errors.Application("Some application error");
+
+                    /* Emit this error through the server */
+                    RestifyInst.emit("error", err);
+
+                    expect(BunyanInst.fatal).to.be.calledOnce
+                        .calledWith(err);
+
+                    expect(BunyanInst.debug).to.not.be.called;
+                    expect(BunyanInst.error).to.not.be.called;
+
+                    done();
+
+                });
+
+        });
+
+        it("should listen for an Error and log to error", function (done) {
+
+            var obj = new Main(config)
+                .on("config", function () {
+
+                    var err = new Error("Some error");
+
+                    /* Emit this error through the server */
+                    RestifyInst.emit("error", err);
+
+                    expect(BunyanInst.error).to.be.calledOnce
+                        .calledWith(err);
+
+                    expect(BunyanInst.debug).to.not.be.called;
+                    expect(BunyanInst.fatal).to.not.be.called;
+
+                    done();
+
+                });
+
+        });
+
+        it("should listen for an UncaughtError and not log to anything", function (done) {
+
+            var obj = new Main(config)
+                .on("config", function () {
+
+                    var err = new UncaughtException("Some error");
+
+                    /* Emit this error through the server */
+                    RestifyInst.emit("error", err);
+
+                    expect(BunyanInst.debug).to.not.be.called;
+                    expect(BunyanInst.error).to.not.be.called;
+                    expect(BunyanInst.fatal).to.not.be.called;
+
+                    done();
+
+                });
 
         });
 
