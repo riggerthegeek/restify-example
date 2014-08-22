@@ -39,18 +39,16 @@ module.exports = function (container, outputHandler) {
 
         "/example": {
 
-            get: [
-                function (req, res, cb) {
+            get: function (req, res, cb) {
 
-                    var err;
-                    var data = {
-                        stubbed: {}
-                    };
+                var err;
+                var data = {
+                    stubbed: {}
+                };
 
-                    outputHandler(err, data, req, res, cb);
+                outputHandler(err, data, req, res, cb);
 
-                }
-            ]
+            }
 
         }
 
