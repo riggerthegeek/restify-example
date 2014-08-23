@@ -31,13 +31,22 @@ module.exports = Base.extend({
         this._port = datatypes.setInt(options.port, null);
 
         if (this._port === null) {
-            throw new Error("server port must be set as an integer");
+            throw new SyntaxError("Server port must be set as an integer");
         }
 
         /* Create instance of the server */
-        this._server = this._createServer(options);
+        this._server = this._createServer({
+            certificate: options.certificate,
+            formatters: options.formatters,
+            handleUpgrades: options.handleUpgrades,
+            key: options.key,
+            logger: options.logger,
+            name: options.name,
+            spdy: options.spdy,
+            version: options.version
+        });
 
-        if (_.isObject(this._server) === false) {
+        if (datatypes.setObject(this._server, false) === false) {
             throw new SyntaxError("Server._createServer must return the server instance");
         }
 
@@ -89,11 +98,23 @@ module.exports = Base.extend({
      */
     addRoutes: function (routes) {
 
+        routes = datatypes.setObject(routes, {});
+
         /* Add the URLs */
         _.each(routes, function (methods, route) {
 
+            methods = datatypes.setObject(methods, {});
+
             /* Add the HTTP verbs and endpoints */
             _.each(methods, function (func, method) {
+
+                method = datatypes.setString(method, null);
+                route = datatypes.setString(route, null);
+                func = datatypes.setFunction(func, null);
+
+                if (func === null) {
+                    throw new SyntaxError("func must be a function");
+                }
 
                 this._addRoute(method, route, func);
 
@@ -114,7 +135,7 @@ module.exports = Base.extend({
      */
     after: function (fn) {
         if (_.isFunction(fn) === false) {
-            throw new TypeError("Server.after must receive a function");
+            throw new SyntaxError("Server.after must receive a function");
         }
 
         this._after(fn);
@@ -149,6 +170,18 @@ module.exports = Base.extend({
 
 
     /**
+     * Get Server
+     *
+     * Returns the server instance
+     *
+     * @returns {*}
+     */
+    getServer: function () {
+        return this._server;
+    },
+
+
+    /**
      * GZIP Response
      *
      * Makes the response GZIP compressed.  Returns
@@ -159,18 +192,6 @@ module.exports = Base.extend({
     gzipResponse: function () {
         this._gzipResponse();
         return this;
-    },
-
-
-    /**
-     * Get Server
-     *
-     * Returns the server instance
-     *
-     * @returns {*}
-     */
-    getServer: function () {
-        return this._server;
     },
 
 
@@ -209,7 +230,7 @@ module.exports = Base.extend({
      */
     pre: function (fn) {
         if (_.isFunction(fn) === false) {
-            throw new TypeError("Server.pre must receive a function");
+                throw new TypeError("Server.pre must receive a function");
         }
         this._pre(fn);
         return this;
@@ -222,10 +243,11 @@ module.exports = Base.extend({
      * Starts up the server
      *
      * @params {function} cb
-     * @returns {*}
+     * @returns {exports}
      */
     start: function (cb) {
         this._start(this.getPort(), cb);
+        return this;
     },
 
 
