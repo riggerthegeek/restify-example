@@ -110,9 +110,8 @@ module.exports = Base.extend({
 
                 method = datatypes.setString(method, null);
                 route = datatypes.setString(route, null);
-                func = datatypes.setFunction(func, null);
 
-                if (func === null) {
+                if (typeof func !== "function" && func instanceof Array === false) {
                     throw new SyntaxError("func must be a function");
                 }
 

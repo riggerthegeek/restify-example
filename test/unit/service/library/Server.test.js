@@ -256,6 +256,9 @@ describe("Server test", function () {
                 var fn1 = function () {};
                 var fn2 = function () {};
                 var fn3 = function () {};
+                var fn4 = function () {};
+
+                var arr = [fn3, fn4];
 
                 var routes = {
                     "/test": {
@@ -263,7 +266,7 @@ describe("Server test", function () {
                         post: fn2
                     },
                     "/test/example": {
-                        delete: fn3
+                        delete: arr
                     }
                 };
 
@@ -272,7 +275,7 @@ describe("Server test", function () {
                 expect(obj._addRoute).to.be.calledThrice
                     .calledWith("get", "/test", fn1)
                     .calledWith("post", "/test", fn2)
-                    .calledWith("delete", "/test/example", fn3);
+                    .calledWith("delete", "/test/example", arr);
 
             });
 
