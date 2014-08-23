@@ -116,7 +116,7 @@ describe("Routes test", function () {
 
                 var stub = {};
 
-                var Routes2 = proxyquire("../../../src/service/routes", {
+                var Routes2 = proxyquire("../../../../src/service/routes", {
                     "./index": stub
                 });
 

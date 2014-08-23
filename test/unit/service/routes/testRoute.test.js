@@ -49,7 +49,7 @@ describe("testRoute test", function () {
             getHome: sinon.stub()
         };
 
-        testRoute = proxyquire("../../../src/service/routes/testRoute", {
+        testRoute = proxyquire("../../../../src/service/routes/testRoute", {
             "../endpoints/TestEndpoint": TestEndpoint
         });
 

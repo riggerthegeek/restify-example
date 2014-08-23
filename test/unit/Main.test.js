@@ -92,10 +92,11 @@ describe("Main test", function () {
             return BunyanInst;
         };
 
-        Main = proxyquire("../src/Main", {
+        Main = proxyquire("../../src/Main", {
             "./service/library/Restify": RestifyStub,
             "./service/library/Bunyan": BunyanStub
         });
+
     });
 
     describe("Instantiation test", function () {
@@ -163,7 +164,7 @@ describe("Main test", function () {
                 };
             };
 
-            Main = proxyquire("../src/Main", {
+            Main = proxyquire("../../src/Main", {
                 "./service/routes": RouteStub,
                 "./service/library/Restify": RestifyStub
             });
@@ -250,7 +251,7 @@ describe("Main test", function () {
                 return RestifyInst;
             };
 
-            Main = proxyquire("../src/Main", {
+            Main = proxyquire("../../src/Main", {
                 "./service/library/Restify": RestifyStub,
                 "./service/library/Bunyan": BunyanStub
             });

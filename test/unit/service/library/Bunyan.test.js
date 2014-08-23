@@ -66,7 +66,7 @@ describe("Bunyan test", function () {
             .throws(new TypeError("options.name (string) is required"));
         bunyanStub.createLogger
             .returns(inst);
-        Bunyan = proxyquire("../../../src/service/library/Bunyan", {
+        Bunyan = proxyquire("../../../../src/service/library/Bunyan", {
             bunyan: bunyanStub
         });
     });
