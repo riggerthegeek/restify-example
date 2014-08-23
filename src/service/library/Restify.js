@@ -16,38 +16,29 @@ var _ = require("lodash");
 var restify = require("restify");
 var steeplejack = require("steeplejack");
 
-var Base = steeplejack.Base;
-var datatypes = Base.datatypes;
+var datatypes = steeplejack.Base.datatypes;
 
 
 /* Files */
+var Server = require("./Server");
 
 
-module.exports = Base.extend({
+module.exports = Server.extend({
 
 
     /**
-     * Constructor
+     * Create Server
      *
-     * Manages the creation of
+     * Returns an instance of the server object
      *
      * @param {object} options
+     * @returns {object}
      * @private
      */
-    _construct: function (options) {
-
-        var self = this;
-
-        options = datatypes.setObject(options, {});
-
-        self.port = datatypes.setInt(options.port, null);
-
-        if (self.port === null) {
-            throw new Error("server port must be set as an integer");
-        }
+    _createServer: function (options) {
 
         /* Create instance of the server */
-        self._server = restify.createServer({
+        return restify.createServer({
             certificate: options.certificate,
             formatters: options.formatters,
             handleUpgrades: options.handleUpgrades,
@@ -71,9 +62,10 @@ module.exports = Base.extend({
      *
      * @param options
      * @returns {exports}
+     * @private
      */
-    acceptParser: function (options) {
-        options = datatypes.setArray(options, this._server.acceptable);
+    _acceptParser: function (options) {
+        options = datatypes.setArray(options, this.getServer().acceptable);
 
         return this.use(restify.acceptParser(options));
     },
@@ -88,9 +80,10 @@ module.exports = Base.extend({
      *
      * @param options
      * @returns {exports}
+     * @private
      */
-    acceptParserStrict: function (options) {
-        options = datatypes.setArray(options, this._server.acceptable);
+    _acceptParserStrict: function (options) {
+        options = datatypes.setArray(options, this.getServer().acceptable);
 
         return this.use(function (req, res, cb) {
 
@@ -112,27 +105,19 @@ module.exports = Base.extend({
 
 
     /**
-     * Add Routes
+     * Add Route
      *
-     * Takes the route object and adds to the server
-     * instance
+     * Adds an individual route to the stack
      *
-     * @param {object} routes
+     * @param {string} httpMethod
+     * @param {string} route
+     * @param {function} fn
+     * @private
      */
-    addRoutes: function (routes) {
+    _addRoute: function (httpMethod, route, fn) {
+        var server = this.getServer();
 
-        /* Add the URLs */
-        _.each(routes, function (methods, route) {
-
-            /* Add the HTTP verbs and endpoints */
-            _.each(methods, function (func, method) {
-
-                this[method](route, func);
-
-            }, this);
-
-        }, this._server);
-
+        server[httpMethod](route, fn);
     },
 
 
@@ -142,11 +127,10 @@ module.exports = Base.extend({
      * Set up a listener for the after event
      *
      * @param fn
-     * @returns {exports}
+     * @private
      */
-    after: function (fn) {
-        this._server.on("after", fn);
-        return this;
+    _after: function (fn) {
+        this.getServer().on("after", fn);
     },
 
 
@@ -157,21 +141,10 @@ module.exports = Base.extend({
      * this to make it chainable.
      *
      * @returns {exports}
+     * @private
      */
-    bodyParser: function () {
+    _bodyParser: function () {
         return this.use(restify.bodyParser());
-    },
-
-
-    /**
-     * Get Server
-     *
-     * Returns the server instance
-     *
-     * @returns {*}
-     */
-    getServer: function () {
-        return this._server;
     },
 
 
@@ -182,8 +155,9 @@ module.exports = Base.extend({
      * this to make it chainable.
      *
      * @returns {exports}
+     * @private
      */
-    gzipResponse: function () {
+    _gzipResponse: function () {
         return this.use(restify.gzipResponse());
     },
 
@@ -200,9 +174,9 @@ module.exports = Base.extend({
      * @param {object} data
      * @param {object} req
      * @param {object} res
-     * @param {function} cb
+     * @private
      */
-    outputHandler: function (err, data, req, res, cb) {
+    _outputHandler: function (err, data, req, res) {
 
         var statusCode = 200;
         var output;
@@ -235,11 +209,6 @@ module.exports = Base.extend({
         /* Push the output */
         res.send(statusCode, output);
 
-        /* Activate the callback so the "after" event is triggered */
-        if (_.isFunction(cb)) {
-            cb();
-        }
-
     },
 
 
@@ -250,24 +219,10 @@ module.exports = Base.extend({
      * of the stack.
      *
      * @param fn
-     * @returns {exports}
+     * @private
      */
-    pre: function (fn) {
-        this._server.pre(fn);
-        return this;
-    },
-
-
-    /**
-     * Start
-     *
-     * Starts up the server and returns a promise
-     *
-     * @params {function} cb
-     * @returns {*}
-     */
-    start: function (cb) {
-        return this.getServer().listen(this.port, cb);
+    _pre: function (fn) {
+        this.getServer().pre(fn);
     },
 
 
@@ -281,14 +236,27 @@ module.exports = Base.extend({
      *
      * @param {boolean} mapParams
      * @returns {exports}
+     * @private
      */
-    queryParser: function (mapParams) {
-
-        mapParams = datatypes.setBool(mapParams, false);
-
+    _queryParser: function (mapParams) {
         return this.use(restify.queryParser({
             mapParams: mapParams
         }));
+    },
+
+
+    /**
+     * Start
+     *
+     * Starts up the restify server
+     *
+     * @param {number} port
+     * @param {function} cb
+     * @returns {*}
+     * @private
+     */
+    _start: function (port, cb) {
+        return this.getServer().listen(port, cb);
     },
 
 
@@ -297,26 +265,26 @@ module.exports = Base.extend({
      *
      * Listen to uncaught exceptions
      *
-     * @param fn
+     * @param {function} fn
+     * @returns {*}
+     * @private
      */
-    uncaughtException: function (fn) {
-        this._server.on("uncaughtException", fn);
-        return this;
+    _uncaughtException: function (fn) {
+        return this.getServer().on("uncaughtException", fn);
     },
 
 
     /**
      * Use
      *
-     * Exposes the use method on the server. Can accept
-     * a function or an array of functions.
+     * Exposes the use method on the server.
      *
-     * @param fn
+     * @param {function} fn
      * @returns {exports}
+     * @private
      */
-    use: function (fn) {
-        this._server.use(fn);
-        return this;
+    _use: function (fn) {
+        return this.getServer().use(fn);
     }
 
 
