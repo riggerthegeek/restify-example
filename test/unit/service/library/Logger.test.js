@@ -51,6 +51,23 @@ describe("Logger test", function () {
             obj._trigger = sinon.spy();
         });
 
+        describe("#getLogLevels", function () {
+
+            it("should return the logging levels", function () {
+
+                expect(obj.getLogLevels()).to.be.eql([
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug",
+                    "trace"
+                ]);
+
+            });
+
+        });
+
         describe("#setLevel", function () {
 
             it("should default the level to error when not set", function () {

@@ -27,6 +27,25 @@ module.exports = Base.extend({
 
 
     /**
+     * Get Log Levels
+     *
+     * Gets the available logging levels
+     *
+     * @returns {string[]}
+     */
+    getLogLevels: function () {
+        return [
+            "fatal",
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "trace"
+        ];
+    },
+
+
+    /**
      * Set Level
      *
      * Sets the log level. Defaults to "error"
@@ -36,7 +55,7 @@ module.exports = Base.extend({
     setLevel: function (level) {
 
         /* Set the log level - default to error */
-        level = datatypes.setString(level, "error");
+        level = datatypes.setEnum(level, this.getLogLevels(), "error");
 
         this._setLevel(level);
 
