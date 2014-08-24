@@ -186,6 +186,7 @@ module.exports = Server.extend({
             /* Convert to a Restify error and process */
             if (err instanceof restify.RestError) {
                 /* Already a RestError - use it */
+                statusCode = err.statusCode;
                 output = err;
             } else {
 
