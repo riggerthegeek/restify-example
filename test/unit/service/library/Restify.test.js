@@ -42,7 +42,7 @@ chai.use(require("sinon-chai"));
 var expect = chai.expect;
 
 
-describe.only("Restify test", function () {
+describe("Restify test", function () {
 
     var Restify,
         restify,
