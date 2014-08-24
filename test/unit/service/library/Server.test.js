@@ -243,13 +243,172 @@ describe("Server test", function () {
 
         });
 
+        describe("#addRoute", function () {
+
+            beforeEach(function () {
+                expect(obj._addRoute).to.be.undefined;
+
+                obj._addRoute = sinon.spy();
+            });
+
+            it("should throw an error if httpMethod not a string", function () {
+
+                [
+                    null,
+                    false,
+                    true,
+                    new Date(),
+                    function () { },
+                    undefined
+                ].forEach(function (input) {
+
+                    var fail = false;
+
+                    try {
+                        obj.addRoute(input);
+                    } catch (err) {
+
+                        fail = true;
+
+                        expect(err).to.be.instanceof(TypeError);
+                        expect(err.message).to.be.equal("httpMethod must be a string");
+
+                    } finally {
+
+                        expect(fail).to.be.true;
+
+                    }
+
+                });
+
+            });
+
+            it("should throw an error if route not a string", function () {
+
+                [
+                    null,
+                    false,
+                    true,
+                    new Date(),
+                    function () { },
+                    undefined
+                ].forEach(function (route) {
+
+                    var fail = false;
+
+                    try {
+                        obj.addRoute("get", route);
+                    } catch (err) {
+
+                        fail = true;
+
+                        expect(err).to.be.instanceof(TypeError);
+                        expect(err.message).to.be.equal("route must be a string");
+
+                    } finally {
+
+                        expect(fail).to.be.true;
+
+                    }
+
+                });
+
+            });
+
+            it("should throw an error if fn not a function or arry", function () {
+
+                [
+                    null,
+                    false,
+                    true,
+                    new Date(),
+                    2.3,
+                    3,
+                    undefined,
+                    {}
+                ].forEach(function (fn) {
+
+                    var fail = false;
+
+                    try {
+                        obj.addRoute("get", "/route", fn);
+                    } catch (err) {
+
+                        fail = true;
+
+                        expect(err).to.be.instanceof(TypeError);
+                        expect(err.message).to.be.equal("fn must be a function or array");
+
+                    } finally {
+
+                        expect(fail).to.be.true;
+
+                    }
+
+                });
+
+            });
+
+            it("should allow a known HTTP method through", function () {
+
+                [
+                    "get",
+                    "GET",
+                    "post",
+                    "POST",
+                    "DEL",
+                    "del",
+                    "DELETE",
+                    "delete",
+                    "head",
+                    "HEAD",
+                    "patch",
+                    "PATCH"
+                ].forEach(function (method, i) {
+
+                    var fn = function () {};
+
+                    obj.addRoute(method, "/route", fn);
+
+                    var httpMethod = method.toLowerCase();
+
+                    if (httpMethod === "delete") {
+                        httpMethod = "del";
+                    }
+
+                    expect(obj._addRoute).to.be.callCount(i + 1)
+                        .calledWithExactly(httpMethod, "/route", fn);
+
+                });
+
+            });
+
+            it("should throw an error if an unknown HTTP method", function () {
+
+                var fail = false;
+
+                try {
+                    obj.addRoute("method", "/route", function () { });
+                } catch (err) {
+                    fail = true;
+
+                    expect(err).to.be.instanceof(TypeError);
+                    expect(err.message).to.be.equal("httpMethod is unknown: method");
+                } finally {
+                    expect(fail).to.be.true;
+                }
+
+            });
+
+        });
+
         describe("#addRoutes", function () {
 
             beforeEach(function () {
                 expect(obj._addRoute).to.be.undefined;
 
                 obj._addRoute = sinon.spy();
-            })
+            });
 
             it("should go through an objects of objects, passing to the _addRoute method", function () {
 
@@ -275,7 +434,7 @@ describe("Server test", function () {
                 expect(obj._addRoute).to.be.calledThrice
                     .calledWith("get", "/test", fn1)
                     .calledWith("post", "/test", fn2)
-                    .calledWith("delete", "/test/example", arr);
+                    .calledWith("del", "/test/example", arr);
 
             });
 
@@ -302,8 +461,8 @@ describe("Server test", function () {
 
                     fail = true;
 
-                    expect(err).to.be.instanceof(SyntaxError);
-                    expect(err.message).to.be.equal("func must be a function");
+                    expect(err).to.be.instanceof(TypeError);
+                    expect(err.message).to.be.equal("fn must be a function or array");
 
                 } finally {
 

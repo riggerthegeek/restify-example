@@ -88,6 +88,75 @@ module.exports = Base.extend({
 
 
     /**
+     * Add Route
+     *
+     * Adds a route to the stack
+     *
+     * @param {string} httpMethod
+     * @param {string} route
+     * @param {string/array} fn
+     */
+    addRoute: function (httpMethod, route, fn) {
+
+        httpMethod = datatypes.setString(httpMethod, null);
+        route = datatypes.setString(route, null);
+
+        if (httpMethod === null) {
+            throw new TypeError("httpMethod must be a string");
+        }
+
+        if (route === null) {
+            throw new TypeError("route must be a string");
+        }
+
+        if (typeof fn !== "function" && fn instanceof Array === false) {
+            throw new TypeError("fn must be a function or array");
+        }
+
+        httpMethod = httpMethod.toLowerCase();
+
+        var err;
+
+        switch (httpMethod) {
+
+            case "delete":
+            {
+                /* Convert to del */
+                httpMethod = "del";
+                break;
+            }
+
+            case "get":
+            case "post":
+            case "put":
+            case "del":
+            case "head":
+            case "patch":
+            {
+                /* Nothing to do - just pass through */
+                break;
+            }
+
+            default:
+            {
+                /* Unknown HTTP method type */
+                err = new TypeError("httpMethod is unknown: " + httpMethod);
+                break;
+            }
+
+        }
+
+        if (err) {
+            /* Throw error */
+            throw err;
+        }
+
+        this._addRoute(httpMethod, route, fn);
+
+    },
+
+
+    /**
      * Add Routes
      *
      * Takes the route object and adds to the server
@@ -108,14 +177,7 @@ module.exports = Base.extend({
             /* Add the HTTP verbs and endpoints */
             _.each(methods, function (func, method) {
 
-                method = datatypes.setString(method, null);
-                route = datatypes.setString(route, null);
-
-                if (typeof func !== "function" && func instanceof Array === false) {
-                    throw new SyntaxError("func must be a function");
-                }
-
-                this._addRoute(method, route, func);
+                this.addRoute(method, route, func);
 
             }, this);
 
