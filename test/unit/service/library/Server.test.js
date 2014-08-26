@@ -119,18 +119,15 @@ describe("Server test", function () {
 
         });
 
-        it("should throw an error if the _createServer method fails to return an object", function () {
+        it("should throw an error if the _createServer method returns a falsey value", function () {
 
             [
-                "string",
                 null,
                 undefined,
-                2.3,
-                2,
-                function () { },
-                true,
+                0,
                 false,
-                []
+                "",
+                NaN
             ].forEach(function (serverInst) {
 
                 Server.prototype._createServer = sinon.stub()

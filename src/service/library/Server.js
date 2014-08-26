@@ -46,7 +46,7 @@ module.exports = Base.extend({
             version: options.version
         });
 
-        if (datatypes.setObject(this._server, false) === false) {
+        if (!this._server) {
             throw new SyntaxError("Server._createServer must return the server instance");
         }
 
