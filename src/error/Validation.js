@@ -41,11 +41,16 @@ _.extend(Validation.prototype, {
 
     getDetail: function () {
 
-        return {
+        var err = {
             type: this.getType(),
-            message: this.getMessage(),
-            error: this.getErrors()
+            message: this.getMessage()
         };
+
+        if (this.hasErrors()) {
+            err.error = this.getErrors();
+        }
+
+        return err;
 
     },
 

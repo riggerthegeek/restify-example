@@ -94,6 +94,20 @@ describe("ValidationError test", function () {
                 });
             });
 
+            it("should not return an error element if there's no detail", function () {
+
+                obj = new ValidationError("text");
+
+                expect(obj.getType()).to.be.equal("ValidationError");
+                expect(obj.getMessage()).to.be.equal("text");
+
+                expect(obj.getDetail()).to.be.eql({
+                    type: "ValidationError",
+                    message: "text"
+                });
+
+            });
+
         });
 
         describe("#getHttpCode", function () {
