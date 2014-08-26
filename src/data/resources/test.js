@@ -38,12 +38,16 @@ module.exports = function (config, logger) {
                         id: 1,
                         firstName: "Test",
                         lastName: "Testington",
+                        username: "test1",
+                        password: "test",
                         emailAddress: "test@test.com",
                         created: new Date()
                     }, {
                         id: 2,
                         firstName: "Test2",
                         lastName: "Testington2",
+                        username: "test2",
+                        password: "test3",
                         emailAddress: "test2@test.com",
                         created: new Date()
                     }]);
