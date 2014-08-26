@@ -15,13 +15,14 @@
 var authorization = require("../authorization");
 
 
-module.exports = function ($outputHandler, $testEndpoint) {
+module.exports = function ($outputHandler, $testEndpoint, $testStore) {
 
     return {
 
         "/": {
 
             get: [
+                authorization.Basic($testStore.getUserByUsernameAndPassword),
                 function (req, res, cb) {
 
                     $testEndpoint.getHome(

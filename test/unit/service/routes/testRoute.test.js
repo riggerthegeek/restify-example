@@ -24,6 +24,7 @@ function rootRequire(file) {
 
 
 /* Third-party modules */
+var async = require("async");
 var chai = require("chai");
 var proxyquire = require("proxyquire");
 var sinon = require("sinon");
@@ -39,6 +40,7 @@ var expect = chai.expect;
 describe("testRoute test", function () {
 
     var testRoute,
+        testStore,
         TestEndpoint,
         outputHandler,
         routes;
@@ -54,7 +56,11 @@ describe("testRoute test", function () {
 
         outputHandler = sinon.stub();
 
-        routes = testRoute(outputHandler, TestEndpoint);
+        testStore = {
+            getUserByUsernameAndPassword: sinon.stub()
+        };
+
+        routes = testRoute(outputHandler, TestEndpoint, testStore);
 
         expect(routes).to.be.an("object");
 
@@ -62,14 +68,31 @@ describe("testRoute test", function () {
 
     describe("GET:/", function () {
 
-        it("should retrieve the endpoint", function (done) {
+        it("should retrieve the endpoint - successfully logging in with HTTP Basic", function (done) {
 
             var route = routes["/"].get;
 
+            testStore.getUserByUsernameAndPassword
+                .withArgs("username", "password")
+                .yields(null, {
+                    username: "username",
+                    password: "password"
+                });
+
             expect(route).to.be.an("array");
 
-            var req = {};
-            var res = {};
+            var req = {
+                headers: {
+                    authorization: "Basic dXNlcm5hbWU6cGFzc3dvcmQ="
+                },
+                logIn: function (user, options, cb) {
+                    return cb(null);
+                }
+            };
+            var res = {
+                end: sinon.spy(),
+                setHeader: sinon.spy()
+            };
 
             var err = {};
             var data = {};
@@ -77,16 +100,26 @@ describe("testRoute test", function () {
 
             outputHandler.yields("ok");
 
-            route[0](req, res, function (result) {
+            var endpoint = route.pop();
 
-                expect(result).to.be.equal("ok");
+            async.each(route, function (fn, callback) {
+                fn(req, res, callback);
+            }, function (error) {
 
-                expect(TestEndpoint.getHome).to.be.calledOnce;
+                expect(error).to.be.undefined;
 
-                expect(outputHandler).to.be.calledOnce
-                    .calledWith(err, data, req, res);
+                endpoint(req, res, function (result) {
 
-                done();
+                    expect(result).to.be.equal("ok");
+
+                    expect(TestEndpoint.getHome).to.be.calledOnce;
+
+                    expect(outputHandler).to.be.calledOnce
+                        .calledWith(err, data, req, res);
+
+                    done();
+
+                });
 
             });
 
