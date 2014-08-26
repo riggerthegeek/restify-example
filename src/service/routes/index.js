@@ -25,13 +25,10 @@ var Base = steeplejack.Base;
 var Routes = Base.extend({
 
 
-    _construct: function (container, outputHandler) {
-
-        this._container = container;
-        this._outputHandler = outputHandler;
+    _construct: function () {
 
         /* Create the router object with the top level routes */
-        this._routes = new steeplejack.Router(this._getTopLevelRoutes());
+        this._routes = this._getTopLevelRoutes();
 
     },
 
@@ -62,7 +59,9 @@ var Routes = Base.extend({
                 /* Add the route to the stack */
                 var Route = Routes.LoadFile(requireName);
 
-                result[route] = new Route(this._container, this._outputHandler);
+                /* Get the route */
+                result[route] = Route;
+
             }
 
             return result;
@@ -80,7 +79,7 @@ var Routes = Base.extend({
      * @returns {*}
      */
     getRoutes: function () {
-        return this._routes.getRoutes();
+        return this._routes;
     }
 
 

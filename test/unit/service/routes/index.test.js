@@ -74,18 +74,13 @@ describe("Routes test", function () {
                 .withArgs("testRoute")
                 .returns(TestRoute);
 
-            var obj = new Routes(container, outputHandler);
+            var obj = new Routes();
 
-            /* Test the route invoked correctly */
-            expect(TestRoute).to.be.calledOnce
-                .to.be.calledWithNew
-                .to.be.calledWith(container, outputHandler);
+            /* Test the route not invoked */
+            expect(TestRoute).to.not.be.called;
 
             expect(obj.getRoutes()).to.be.eql({
-                "/test": {
-                    get: getFn,
-                    post: postFn
-                }
+                test: TestRoute
             });
 
             Routes.GetRouteFiles.restore();
