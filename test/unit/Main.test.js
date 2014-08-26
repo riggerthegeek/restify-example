@@ -140,32 +140,31 @@ describe("Main test", function () {
 
         });
 
-        it.skip("should use the outputHandler and publish to the server.outputHandler method", function (done) {
+        it("should use the outputHandler and publish to the server.outputHandler method", function (done) {
 
             var routes;
 
-            var RouteStub = function (outputHandler) {
+            var RouteStub = function () {
                 return {
                     getRoutes: function () {
-                        routes = {
-                            "/example": {
-                                get: function (req, res, cb) {
+                         return {
+                            example: function ($outputHandler) {
+                                routes = {
+                                    get: function (req, res, cb) {
 
-                                    var err = "err";
-                                    var data = "data";
-                                    outputHandler(err, data, req, res, cb);
-                                }
+                                        var err = "err";
+                                        var data = "data";
+                                        $outputHandler(err, data, req, res, cb);
+                                    }
+                                };
+
+                                return routes;
                             }
                         };
-
-                        return routes;
                     }
 
                 };
             };
-
-            console.log(RouteStub());
-            process.exit();
 
             Main = proxyquire("../../src/Main", {
                 "./service/routes": RouteStub,
@@ -183,9 +182,11 @@ describe("Main test", function () {
                 .on("config", function () {
 
                     expect(RestifyInst.addRoutes).to.be.calledOnce
-                        .calledWith(routes);
+                        .calledWith({
+                            "/example": routes
+                        });
 
-                    routes["/example"].get({}, {}, function () {
+                    routes.get({}, {}, function () {
 
                         expect(RestifyInst.outputHandler).to.be.calledOnce
                             .calledWith("err", "data");
