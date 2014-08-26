@@ -140,11 +140,11 @@ describe("Main test", function () {
 
         });
 
-        it("should use the outputHandler and publish to the server.outputHandler method", function (done) {
+        it.skip("should use the outputHandler and publish to the server.outputHandler method", function (done) {
 
             var routes;
 
-            var RouteStub = function (injector, outputHandler) {
+            var RouteStub = function (outputHandler) {
                 return {
                     getRoutes: function () {
                         routes = {
@@ -163,6 +163,9 @@ describe("Main test", function () {
 
                 };
             };
+
+            console.log(RouteStub());
+            process.exit();
 
             Main = proxyquire("../../src/Main", {
                 "./service/routes": RouteStub,

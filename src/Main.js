@@ -21,6 +21,7 @@ var datatypes = Base.datatypes;
 /* Files */
 var AppServices = require("./application/AppServices");
 var DataServices = require("./data/DataServices");
+var Endpoints = require("./service/endpoints");
 var errors = require("./error");
 var Bunyan = require("./service/library/Bunyan");
 var Routes = require("./service/routes");
@@ -42,11 +43,14 @@ module.exports = Base.extend({
         /* Create logger */
         var logger = this._createLogger(config, injector);
 
+        /* Start the app services */
+        this._createAppServices(injector);
+
         /* Start the data services */
         this._createDataServices(config, injector, logger);
 
-        /* Start the app services */
-        this._createAppServices(injector);
+        /* Register the endpoints */
+        this._createEndpoints(injector);
 
         /* Create the web server */
         this._createServer(config, logger, injector);
@@ -57,17 +61,27 @@ module.exports = Base.extend({
     /**
      * Add Routes
      *
-     * Adds the routes to the server
+     * Adds the routes to the server.  This is where
+     * the injector processes the files to get
+     * dependencies.
      *
      * @param {object} injector
-     * @param {function} outputHandler
+     * @returns {object}
      * @private
      */
-    _addRoutes: function (injector, outputHandler) {
+    _addRoutes: function (injector) {
 
-        var routes = new Routes(injector, outputHandler);
+        var rawRoutes = new Routes().getRoutes();
 
-        return routes.getRoutes();
+        /* Process the routes */
+        var routes = _.reduce(rawRoutes, function (result, fn, name) {
+            result[name] = injector.process(fn);
+            return result;
+        }, {}, this);
+
+        /* Format the results for use by the Server router */
+        return new steeplejack.Router(routes)
+            .getRoutes();
 
     },
 
@@ -121,6 +135,26 @@ module.exports = Base.extend({
         });
 
         return dataServices;
+
+    },
+
+
+    /**
+     * Create Endpoints
+     *
+     * Get the endpoints and register them to the injector
+     *
+     * @param {object} injector
+     * @private
+     */
+    _createEndpoints: function (injector) {
+
+        var endpoints = new Endpoints();
+
+        /* Flatten out the services and register the app services */
+        _.each(steeplejack.Injector.Parser(endpoints.getEndpoints(), "$", "endpoint"), function (fn, name) {
+            injector.register(name, fn);
+        });
 
     },
 
@@ -189,6 +223,9 @@ module.exports = Base.extend({
             return server.outputHandler.apply(server, arguments);
         };
 
+        /* Register it to the injector */
+        injector.registerSingleton("$outputHandler", outputHandler);
+
         /* Listen for errors */
         server.on("error", function (err) {
             if (err instanceof errors.Validation) {
@@ -217,7 +254,7 @@ module.exports = Base.extend({
             });
 
         /* Get the routes */
-        var routes = this._addRoutes(injector, outputHandler);
+        var routes = this._addRoutes(injector);
 
         /* Add in the routes to the server */
         server.addRoutes(routes);

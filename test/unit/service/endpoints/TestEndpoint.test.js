@@ -29,14 +29,14 @@ var sinon = require("sinon");
 
 
 /* Files */
-var TestEndpoint = rootRequire("./src/service/endpoints/TestEndpoint");
+var testEndpoint = rootRequire("./src/service/endpoints/testEndpoint");
 
 
 chai.use(require("sinon-chai"));
 var expect = chai.expect;
 
 
-describe("TestEndpoint test", function () {
+describe("testEndpoint test", function () {
 
     var obj,
         logger,
@@ -49,7 +49,7 @@ describe("TestEndpoint test", function () {
             getHome: sinon.stub()
         };
 
-        obj = new TestEndpoint(logger, testService);
+        obj = new testEndpoint(logger, testService);
 
     });
 
