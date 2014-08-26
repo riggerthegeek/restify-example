@@ -39,13 +39,9 @@ var expect = chai.expect;
 
 describe("Routes test", function () {
 
-    var container,
-        outputHandler;
+    var outputHandler;
 
     beforeEach(function () {
-        container = {
-            process: sinon.stub()
-        };
         outputHandler = sinon.stub();
     });
 
