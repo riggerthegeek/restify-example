@@ -12,12 +12,10 @@
 
 
 /* Files */
-var TestEndpoint = require("../endpoints/TestEndpoint");
+var authorization = require("../authorization");
 
 
-module.exports = function (container, outputHandler) {
-
-    var endpoint = container.process(TestEndpoint);
+module.exports = function ($outputHandler, $testEndpoint) {
 
     return {
 
@@ -26,9 +24,9 @@ module.exports = function (container, outputHandler) {
             get: [
                 function (req, res, cb) {
 
-                    endpoint.getHome(
+                    $testEndpoint.getHome(
                         function (err, data) {
-                            outputHandler(err, data, req, res, cb);
+                            $outputHandler(err, data, req, res, cb);
                         }
                     );
 
@@ -41,12 +39,12 @@ module.exports = function (container, outputHandler) {
 
             get: function (req, res, cb) {
 
-                var err;
+                var err = null;
                 var data = {
                     stubbed: {}
                 };
 
-                outputHandler(err, data, req, res, cb);
+                $outputHandler(err, data, req, res, cb);
 
             }
 

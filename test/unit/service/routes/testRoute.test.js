@@ -40,7 +40,6 @@ describe("testRoute test", function () {
 
     var testRoute,
         TestEndpoint,
-        container,
         outputHandler,
         routes;
     beforeEach(function () {
@@ -53,14 +52,9 @@ describe("testRoute test", function () {
             "../endpoints/TestEndpoint": TestEndpoint
         });
 
-        container = {
-            process: sinon.stub()
-        };
         outputHandler = sinon.stub();
 
-        container.process.returns(TestEndpoint);
-
-        routes = testRoute(container, outputHandler);
+        routes = testRoute(outputHandler, TestEndpoint);
 
         expect(routes).to.be.an("object");
 
@@ -68,7 +62,7 @@ describe("testRoute test", function () {
 
     describe("GET:/", function () {
 
-        it("should retrive the endpoint", function (done) {
+        it("should retrieve the endpoint", function (done) {
 
             var route = routes["/"].get;
 
@@ -119,7 +113,7 @@ describe("testRoute test", function () {
                 expect(result).to.be.null;
 
                 expect(outputHandler).to.have.been.calledOnce
-                    .calledWith(undefined, { stubbed: {} }, req, res);
+                    .calledWith(null, { stubbed: {} }, req, res);
 
                 done();
 
