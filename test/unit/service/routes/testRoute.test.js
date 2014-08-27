@@ -68,7 +68,7 @@ describe("testRoute test", function () {
 
     describe("GET:/", function () {
 
-        it("should retrieve the endpoint - successfully logging in with HTTP Basic", function (done) {
+        it("should retrieve the endpoint - successfully logging in with HTTP Basic  ", function (done) {
 
             var route = routes["/"].get;
 
@@ -83,7 +83,7 @@ describe("testRoute test", function () {
 
             var req = {
                 headers: {
-                    authorization: "Basic dXNlcm5hbWU6cGFzc3dvcmQ="
+                    authorization: "Basic dXNlcm5hbWU6cGFzc3dvcmQ=" /* username:password */
                 },
                 logIn: function (user, options, cb) {
                     return cb(null);
