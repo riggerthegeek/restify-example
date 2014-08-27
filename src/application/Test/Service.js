@@ -20,27 +20,26 @@ var Base = steeplejack.Base;
 /* Files */
 
 
-module.exports = Base.extend({
+module.exports = function ($logger, $testStore) {
 
 
-    _construct: function ($logger, $testStore) {
-        this._logger = $logger;
-        this._testStore = $testStore;
-    },
+    return {
+
+        getHome: function (cb) {
+
+            $testStore.getUsers(function (err, result) {
+
+                if (err) {
+                    return cb(err, null);
+                }
+
+                cb(null, result);
+
+            });
+
+        }
+
+    };
 
 
-    getHome: function (cb) {
-
-        this._testStore.getUsers(function (err, result) {
-
-            if (err) {
-                return cb(err, null);
-            }
-
-            cb(null, result);
-
-        });
-
-    }
-
-});
+};

@@ -50,12 +50,6 @@ describe("Service test", function () {
 
             var obj = new TestService(logger, testStore);
 
-            expect(obj).to.be.instanceof(TestService)
-                .to.be.instanceof(Base);
-
-            expect(obj._logger).to.be.equal(logger);
-            expect(obj._testStore).to.be.equal(testStore);
-
         });
 
     });
