@@ -20,7 +20,6 @@
     "lodash": "~2.4.1",
     "passport": "~0.2.0",
     "passport-http": "~0.2.2",
-    "passport-oauth": "~1.0.0",
     "restify": "~2.8.2"
   },
   "devDependencies": {
