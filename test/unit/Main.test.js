@@ -5,21 +5,6 @@
 "use strict";
 
 
-/**
-* Root Require
-*
-* This is a convenience method that prefixes the require
-* path with the root path so as to help calling the
-* correct file.
-*
-* @param {string} file
-* @returns {*}
-*/
-function rootRequire(file) {
-    return require(require("path").join(process.cwd(), file));
-}
-
-
 /* Node modules */
 var EventEmitter = require("events").EventEmitter;
 
@@ -33,9 +18,9 @@ var steeplejack = require("steeplejack");
 
 
 /* Files */
-var config = rootRequire("./config");
-var Errors = rootRequire("./src/error");
-var UncaughtError = rootRequire("./src/error/Uncaught");
+var config = require("../../config");
+var Errors = require("../../src/error");
+var UncaughtError = require("../../src/error/Uncaught");
 
 
 chai.use(require("sinon-chai"));
@@ -244,7 +229,7 @@ describe("Main test", function () {
             RestifyInst;
         beforeEach(function () {
 
-            Restify = rootRequire("./src/service/library/Restify");
+            Restify = require("../../src/service/library/Restify");
             RestifyInst = new Restify({
                 port: 3000
             });

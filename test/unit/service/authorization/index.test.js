@@ -5,21 +5,6 @@
 "use strict";
 
 
-/**
- * Root Require
- *
- * This is a convenience method that prefixes the require
- * path with the root path so as to help calling the
- * correct file.
- *
- * @param {string} file
- * @returns {*}
- */
-function rootRequire(file) {
-    return require(require("path").join(process.cwd(), file));
-}
-
-
 /* Node modules */
 
 
@@ -29,7 +14,7 @@ var sinon = require("sinon");
 
 
 /* Files */
-var authorization = rootRequire("./src/service/authorization");
+var authorization = require("../../../../src/service/authorization");
 
 
 chai.use(require("sinon-chai"));
@@ -44,7 +29,7 @@ describe("Authorization test", function () {
             "Basic"
         ]);
 
-        expect(authorization.Basic).to.be.equal(rootRequire("./src/service/authorization/Basic"));
+        expect(authorization.Basic).to.be.equal(require("../../../../src/service/authorization/Basic"));
 
     });
 

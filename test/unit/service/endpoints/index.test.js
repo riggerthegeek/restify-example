@@ -5,21 +5,6 @@
 "use strict";
 
 
-/**
- * Root Require
- *
- * This is a convenience method that prefixes the require
- * path with the root path so as to help calling the
- * correct file.
- *
- * @param {string} file
- * @returns {*}
- */
-function rootRequire(file) {
-    return require(require("path").join(process.cwd(), file));
-}
-
-
 /* Node modules */
 var fs = require("fs");
 
@@ -31,7 +16,7 @@ var sinon = require("sinon");
 
 
 /* Files */
-var Endpoints = rootRequire("./src/service/endpoints");
+var Endpoints = require("../../../..//src/service/endpoints");
 
 
 chai.use(require("sinon-chai"));
