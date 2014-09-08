@@ -14,17 +14,7 @@ var sinon = require("sinon");
 
 
 /* Files */
-var testEndpoint;
-try {
-    testEndpoint = require("../../../../src/service/endpoints/testEndpoint");
-} catch (err) {
-    console.log(err);
-    console.log(process.cwd());
-    var fs = require("fs");
-    console.log(fs.readdirSync(process.cwd() + "/src/service/endpoints"));
-    console.log(fs.existsSync(process.cwd() + "/src/service/endpoints/testEndpoint.js"));
-    process.exit();
-}
+var testEndpoint = require("../../../../src/service/endpoints/TestEndpoint");
 
 
 chai.use(require("sinon-chai"));
