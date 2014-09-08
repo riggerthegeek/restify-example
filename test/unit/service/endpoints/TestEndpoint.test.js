@@ -14,7 +14,14 @@ var sinon = require("sinon");
 
 
 /* Files */
-var testEndpoint = require("../../../..//src/service/endpoints/testEndpoint");
+var testEndpoint;
+try {
+    testEndpoint = require("../../../../src/service/endpoints/testEndpoint");
+} catch (err) {
+    console.log(err);
+    console.log(process.cwd());
+    process.exit();
+}
 
 
 chai.use(require("sinon-chai"));
