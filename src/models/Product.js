@@ -1,5 +1,7 @@
 /**
  * Product
+ *
+ * Defines the product model
  */
 
 "use strict";

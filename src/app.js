@@ -1,5 +1,7 @@
 /**
  * app
+ *
+ * Starts up the steeplejack example app
  */
 
 "use strict";

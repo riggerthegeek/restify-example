@@ -1,5 +1,7 @@
 /**
  * Product
+ *
+ * Defines the product controller
  */
 
 "use strict";

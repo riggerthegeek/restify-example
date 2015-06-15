@@ -1,5 +1,8 @@
 /**
  * Products
+ *
+ * Defines the products collection, wrapping
+ * the product model
  */
 
 "use strict";

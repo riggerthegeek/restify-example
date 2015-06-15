@@ -1,5 +1,9 @@
 /**
  * product
+ *
+ * The /product route.  This could also be
+ * put in a directory called product and the
+ * file renamed to index.js
  */
 
 "use strict";
