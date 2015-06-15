@@ -1,0 +1,23 @@
+{
+  "name": "steeplejack-example",
+  "private": true,
+  "version": "1.0.0",
+  "description": "An example project using steeplejack",
+  "main": "./src/app",
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "author": "Simon Emms <simon@simonemms.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/riggerthegeek/steeplejack-example.git"
+  },
+  "bugs": {
+    "url": "https://github.com/riggerthegeek/steeplejack-example/issues"
+  },
+  "licence": "MIT",
+  "scripts": {
+    "test": "echo \"Not implemented yet\" && exit 1"
+  }
+}
