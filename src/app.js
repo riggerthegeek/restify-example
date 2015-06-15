@@ -23,7 +23,7 @@ var app = steeplejack
         modules: [
             "src/!(routes)/**/*.js"
         ],
-        routes: "routes"
+        routeDir: "src/routes"
     })
     .run(function ($config) {
 
