@@ -155,9 +155,9 @@ module.exports = function (grunt) {
         "prompt:npmVersion",
         "buildPackage",
         "shell:commitPackage",
-        //"shell:npmVersion",
-        //"shell:gitPush",
-        //"shell:gitPushTags"
+        "shell:npmVersion",
+        "shell:gitPush",
+        "shell:gitPushTags"
     ]);
 
     grunt.registerTask("test", "Perform tests on the codebase", [
