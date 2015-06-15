@@ -141,9 +141,6 @@ module.exports = function (grunt) {
 
         var newPkg = pkg;
 
-        /* Change version */
-        newPkg.version = version;
-
         /* Change steeplejack version */
         newPkg.dependencies.steeplejack = version;
 
