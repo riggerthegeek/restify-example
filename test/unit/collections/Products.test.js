@@ -25,13 +25,13 @@ describe("Products collection tests", function () {
             Products = _Products_;
         }, {
             Product: function () {
-                Product = steeplejack.Model.extend({
-                    definition: {
-                        id: {
-                            type: "string"
-                        }
-                    }
-                });
+                Product = function (obj) {
+
+                    this.toObject = function () {
+                        return obj;
+                    };
+
+                };
 
                 return Product;
             }
@@ -41,20 +41,22 @@ describe("Products collection tests", function () {
 
     it("should define products collection", function () {
 
-        var obj = new Products({
+        var data = {
             id: 1,
             name: "name",
             price: 29.99
-        });
+        };
+
+        var obj = new Products(data);
 
         expect(obj).to.be.instanceof(steeplejack.Collection)
             .instanceof(Products);
 
         expect(obj.get(0)).to.be.instanceof(Product);
 
-        expect(obj.toJSON()).to.be.eql([{
-            id: "1"
-        }]);
+        expect(obj.toJSON()).to.be.eql([
+            data
+        ]);
 
     });
 
