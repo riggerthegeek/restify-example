@@ -26,9 +26,9 @@ module.exports = function ($outputHandler, $productService) {
 
             get: function (req, res) {
 
-                $productService.getProducts(function (err, data) {
-                    $outputHandler(err, data, req, res);
-                });
+                $outputHandler(function () {
+                    return $productService.getProducts();
+                }, req, res);
 
             }
 

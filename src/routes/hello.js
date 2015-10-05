@@ -22,8 +22,12 @@ module.exports = function ($outputHandler) {
 
             get: function (req, res) {
 
-                $outputHandler(null, {
-                    hello: req.params.name
+                $outputHandler(function () {
+
+                    return {
+                        hello: req.params.name
+                    };
+
                 }, req, res);
 
             }

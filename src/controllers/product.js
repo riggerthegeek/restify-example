@@ -20,7 +20,7 @@ module.exports.__factory = function $productService (Products) {
 
     return {
 
-        getProducts: function (cb) {
+        getProducts: function () {
 
             var arr = new Products([{
                 name: "product 1",
@@ -30,7 +30,7 @@ module.exports.__factory = function $productService (Products) {
                 price: "28.99"
             }]);
 
-            cb(null, arr);
+            return arr;
 
         }
 
