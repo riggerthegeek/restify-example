@@ -1,0 +1,6 @@
+{
+  "server": {
+    "name": "steeplejack-example",
+    "port": 3000
+  }
+}

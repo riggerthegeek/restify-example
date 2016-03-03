@@ -22,6 +22,6 @@
   },
   "licence": "MIT",
   "scripts": {
-    "start": "node src/app"
+    "start": "babel-node src/app"
   }
 }
