@@ -1,0 +1,6 @@
+{
+  "server": {
+    "name": "APP_SERVER_NAME",
+    "port": "APP_SERVER_PORT"
+  }
+}

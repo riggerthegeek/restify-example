@@ -20,6 +20,10 @@ import {Restify} from "steeplejack-restify";
 /* Create and configure the steeplejack app */
 let app = Steeplejack.app({
     config: require("./config.json"),
+    env: require("./envvars.json"),
+    modules: [
+        "src/!(routes)/**/*.js"
+    ],
     routesDir: "src/routes"
 });
 
@@ -52,7 +56,8 @@ app.run($config => {
     /* Configure the server */
     server
         .bodyParser()
-        .gzipResponse();
+        .gzipResponse()
+        .queryParser();
 
     return server;
 
