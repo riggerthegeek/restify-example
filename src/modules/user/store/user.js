@@ -21,7 +21,7 @@ import {Promise} from "es6-promise";
 const data = [{
     id: 1,
     firstName: "Test",
-    lastName: "Testingon",
+    lastName: "Testington",
     emailAddress: "test@test.com"
 }];
 
