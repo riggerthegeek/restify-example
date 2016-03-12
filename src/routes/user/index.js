@@ -14,7 +14,7 @@
 /* Files */
 
 
-export let route = ($output, $userService) => {
+export let route = ($userService) => {
 
 
     return {
@@ -22,19 +22,13 @@ export let route = ($output, $userService) => {
         "/": {
 
 
-            get: [
-                (req, res) => {
+            get: ({request}) => {
 
-                    let emailAddress = req.query.emailAddress;
+                    let emailAddress = request.query.emailAddress;
 
-                    $output(req, res, () => {
-
-                        return $userService.getUserByEmailAddress(emailAddress);
-
-                    });
+                    return $userService.getUserByEmailAddress(emailAddress);
 
                 }
-            ]
 
 
         }

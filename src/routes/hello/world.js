@@ -14,25 +14,19 @@
 /* Files */
 
 
-export let route = ($output) => {
+export let route = () => {
 
     return {
 
         "/": {
 
-            get: [
-                (req, res) => {
+            get: () => {
 
-                    $output(req, res, () => {
+                return {
+                    hello: "world"
+                };
 
-                        return {
-                            hello: "world"
-                        };
-
-                    });
-
-                }
-            ]
+            }
 
         }
 
