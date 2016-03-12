@@ -21,7 +21,6 @@ export let route = ($userService) => {
 
         "/": {
 
-
             get: ({request}) => {
 
                 let emailAddress = request.query.emailAddress;
@@ -29,7 +28,6 @@ export let route = ($userService) => {
                 return $userService.getUserByEmailAddress(emailAddress);
 
             }
-
 
         }
 
