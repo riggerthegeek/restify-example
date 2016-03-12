@@ -24,11 +24,11 @@ export let route = ($userService) => {
 
             get: ({request}) => {
 
-                    let emailAddress = request.query.emailAddress;
+                let emailAddress = request.query.emailAddress;
 
-                    return $userService.getUserByEmailAddress(emailAddress);
+                return $userService.getUserByEmailAddress(emailAddress);
 
-                }
+            }
 
 
         }
