@@ -40,7 +40,22 @@ export class User extends Model {
             },
 
             emailAddress: {
-                type: "string"
+                type: "string",
+                validation: [{
+                    rule: "required"
+                }, {
+                    rule: "email"
+                }, {
+                    rule: (value) => {
+
+                        if (value === "test@test.com") {
+                            throw new Error("system email address");
+                        }
+
+                        return true;
+
+                    }
+                }]
             }
 
         };

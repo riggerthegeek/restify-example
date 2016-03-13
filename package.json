@@ -8,7 +8,7 @@
     "es6-promise": "^3.1.2",
     "lodash": "^4.6.1",
     "nodemon": "^1.9.1",
-    "steeplejack": "^2.0.0-4",
+    "steeplejack": "^2.0.0-5",
     "steeplejack-restify": "^1.0.0-3"
   },
   "devDependencies": {

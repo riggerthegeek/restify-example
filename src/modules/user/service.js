@@ -33,6 +33,17 @@ export class UserService {
     }
 
 
+    createUser (data) {
+
+        let obj = new this._deps.UserModel(data);
+
+        obj.validate();
+
+        return obj;
+
+    }
+
+
     getUserByEmailAddress (emailAddress) {
 
         /* Check input is an email */

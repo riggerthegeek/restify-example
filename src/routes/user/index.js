@@ -27,6 +27,12 @@ export let route = ($userService) => {
 
                 return $userService.getUserByEmailAddress(emailAddress);
 
+            },
+
+            post: (req) => {
+
+                return $userService.createUser(req.body);
+
             }
 
         }
