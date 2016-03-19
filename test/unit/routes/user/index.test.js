@@ -18,11 +18,15 @@ import {expect, sinon} from "../../../helpers/config";
 
 describe("/user route", function () {
 
+    beforeEach(function () {
+
+    });
+
     describe("/", function () {
 
         describe("GET", function () {
 
-            it("should return $userService.getUserByEmailAddress", function (done) {
+            it("should return $userService.getUserByEmailAddress", function () {
 
                 let req = {
                     query: {
@@ -35,23 +39,40 @@ describe("/user route", function () {
                     getUserByEmailAddress: sinon.stub().returns("userObj")
                 };
 
-                let $output = (request, response, iterator) => {
+                let user = route($userService);
 
-                    expect(req).to.be.equal(request);
-                    expect(res).to.be.equal(response);
+                expect(user["/"].get(req, res)).to.be.equal("userObj");
 
-                    expect(iterator()).to.be.eql("userObj");
+                expect($userService.getUserByEmailAddress).to.be.calledOnce
+                    .calledWithExactly("test@test.com");
 
-                    done();
+            });
 
+        });
+
+        describe("POST", function () {
+
+            it("should return $userService.createUser", function () {
+
+                let req = {
+                    body: {
+                        my: "body"
+                    }
+                };
+                let res = {};
+
+                let $userService = {
+                    createUser: sinon.stub().returns("userObj")
                 };
 
-                let user = route($output, $userService);
+                let user = route($userService);
 
-                expect(user["/"].get).to.be.an("array")
-                    .to.have.length(1);
+                expect(user["/"].post(req, res)).to.be.equal("userObj");
 
-                expect(user["/"].get[0](req, res)).to.be.undefined;
+                expect($userService.createUser).to.be.calledOnce
+                    .calledWithExactly({
+                        my: "body"
+                    });
 
             });
 
